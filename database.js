@@ -4,7 +4,7 @@ const sqlPromise = initSqlJs({
 
 const databasePromise = 
     fetch(
-        'https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/AllPrintings.sqlite',
+        './AllPrintings.sqlite',
         {cache: 'no-cache'}
     );
 async function run(){

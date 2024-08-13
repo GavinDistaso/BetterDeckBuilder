@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
   workflow_dispatch:
 
 
@@ -14,6 +16,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Download DB
+        runs-on: ubuntu-latest
+        run: |
+          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/AllPrintings.sqlite
+        
 
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
