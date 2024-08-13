@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - main
-  release:
-    types: [published]
+  workflow_run:
+        workflows: ['Create MTG SQLite DB']
+        types: [completed]
+        branches:
+            - 'main'
   workflow_dispatch:
 
 
