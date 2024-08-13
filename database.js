@@ -1,5 +1,5 @@
 const sqlPromise = initSqlJs({
-    locateFile: filename => `/dist/${filename}`
+    locateFile: filename => `./dist/${filename}`
 });
 
 const databasePromise = 
