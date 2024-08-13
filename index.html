@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Better Deck Builder</title>
+        <link href="./style.css" rel="stylesheet">
+        <link href="./mana.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div id="navbar">
+            <h1>Better Deck Builder</h1>
+        </div>
+
+        <div class="island-container">
+            <div id="search">
+                <h2>Card Search</h2>
+
+                <hr>
+
+                <div>
+                    <div style="flex-grow: 0;" id="colorType">
+                        <input type="checkbox" color-type="W">
+                        <input type="checkbox" color-type="U">
+                        <input type="checkbox" color-type="B">
+                        <input type="checkbox" color-type="R">
+                        <input type="checkbox" color-type="G">
+                        <input type="checkbox" color-type="C">
+                    </div>
+                    <select style="flex-grow: 0.1;" id="colorTypeExclusivity">
+                        <option value="XAND">Exactly These Colors</option>
+                        <option value="AND">Atleast These Colors</option>
+                        <option value="OR">Any of These Colors</option>
+                    </select>
+                    <select style="flex-grow: 0.5;" id="cardTypeSearch">
+                        <option value="">Any Type</option>
+                        <option value="Land">Land</option>
+                        <option value="Creature">Creature</option>
+                        <option value="Artifact">Artifactc</option>
+                        <option value="Enchantment">Enchantment</option>
+                        <option value="Instant">Instant</option>
+                        <option value="Sorcery">Sorcery</option>
+                        <option value="Planeswalker">Planeswalker</option>
+                        <option value="Tribal">Tribal</option>
+                    </select>
+                    <select style="flex-grow: 0.5;" id="cardSupertypeSearch">
+                        <option value="">Any Supertype</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Legendary">Legendary</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Snow">Snow</option>
+                        <option value="World">World</option>
+                    </select>
+                </div>
+
+                <div>
+                    <input type="text" placeholder="Text Search..." id="searchText">
+                    <select style="flex-grow: 0.2;" id="textSearchType">
+                        <option value="name">Card Name</option>
+                        <option value="text">Card Text</option>
+                        <option value="type">Card Type</option>
+                    </select>
+                </div>
+
+                <div>
+                    <input type="button" value="Search..." id="searchButton">
+                    <select style="flex-grow: 0.2;" id="sortType">
+                        <option value="name">Sort By Name</option>
+                        <option value="price">Sort By Price</option>
+                        <option value="releaseDate">Sort By Release</option>
+                    </select>
+                    <select style="flex-grow: 0.1;" id="sortDirrection">
+                        <option value="ASC">Ascending</option>
+                        <option value="DESC">Descending</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="island-container">
+
+            <div id="cardNavigation">
+                <div class="cardPageNavigation">
+                    <div onclick="previousPage();">
+                        <img src="./icons/left_arrow.svg" alt="">
+                        <h4>Previous</h4>
+                    </div>
+                    <div onclick="nextPage();">
+                        <h4>Next</h4>
+                        <img src="./icons/right_arrow.svg" alt="">
+                    </div>
+                </div>
+
+                <div id="resultDetails">
+                    Showing 0 - 0 of 0 Results
+                </div>
+
+                <div id="results">
+                </div>
+
+                <div class="cardPageNavigation">
+                    <div onclick="previousPage();">
+                        <img src="./icons/left_arrow.svg" alt="">
+                        <h4>Previous</h4>
+                    </div>
+                    <div onclick="nextPage();">
+                        <h4>Next</h4>
+                        <img src="./icons/right_arrow.svg" alt="">
+                    </div>
+                </div>
+           </div>
+
+            <div id="details">
+                <div>
+                    <h2 id='cardName'>Card Name</h2>
+                </div>
+                <hr>
+                <div>
+                    <div>
+                        <div id='card' style='background-image: url(https://cards.scryfall.io/normal/front/f/e/fe10200c-b525-4751-9f4b-15e0055de9e2.jpg);'> </div>
+                    </div>
+                    <div id="cardInfo">
+                        <div>
+                            <div>Type: </div>
+                            <div id='cardType'>Instant</div>
+                        </div>
+                        <div>
+                            <div>P/T: </div>
+                            <div id='cardPowerToughness'>2/4</div>
+                        </div>
+                        <div>
+                            <div>Price: </div>
+                            <div id='cardPrice'>$999.99</div>
+                        </div>
+                        <div>
+                            <div>Printings: </div>
+                            <div class="dropdown" selected="false">
+                                <input type="button" value="Select Print" id="currentPrintButton">
+                                <div class="dropdown-content" id="cardPrintings" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+
+        <script src="dist/sql-wasm.js"></script>
+        <script src="./script.js"></script>
+        <script src="./card.js"></script>
+        <script src="./database.js"></script>
+        <script src="./search.js"></script>
+    </body>
+</html>

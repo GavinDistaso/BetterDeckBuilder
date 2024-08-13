@@ -1,0 +1,313 @@
+* {
+    --signature-color: #471d73;
+    --alternate-signature-color: #039994;
+
+    font-family: "Do Hyeon", sans-serif;
+    font-weight: 550;
+    font-style: normal;
+
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    min-height: 100%;
+
+    --background-angle: -45deg;
+
+    background-image: linear-gradient(
+        var(--background-angle),
+        #4a1563, #371563, #156359
+    );
+
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+}
+
+input, select{
+    transition: linear;
+    transition-duration: 100ms;
+
+    background-color: transparent;
+
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 2px;
+
+    padding: 4px;
+
+    font-size: large;
+
+    border-color: var(--signature-color);
+
+    color: var(--alternate-signature-color);
+}
+
+.dropdown-content{
+    position: absolute;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #0000006e;
+    border-radius: 5px;
+
+    padding: 5px;
+
+    min-width: 140px;
+    max-height: 200px;
+
+    overflow-y:scroll;
+}
+
+.dropdown {
+    min-width: 140px;
+}
+
+.dropdown > input{
+    width: 100%;
+    text-align: center;
+}
+
+.dropdown[selected='true'] > .dropdown-content{
+    display:block;
+}
+
+.dropdown[selected='false'] > .dropdown-content {
+    display:none;
+}
+
+.dropdown-content > *{
+    transition: linear;
+    transition-duration: 200ms;
+
+    cursor: pointer;
+}
+
+.dropdown-content > div:hover{
+    transition: linear;
+    transition-duration: 200ms;
+
+    filter: invert(1);
+}
+
+hr {
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 2px;
+
+    margin: 8px;
+
+    color: var(--signature-color);
+}
+
+input:hover, input:focus, select:hover, select:focus{
+    transition: linear;
+    transition-duration: 200ms;
+
+    outline: none;
+
+    border-color: var(--alternate-signature-color);
+} 
+
+
+
+#navbar {
+    background-color: var(--signature-color);
+
+    width: 100%;
+    height: 50px;
+
+    display: flex;
+
+    flex-direction: row;
+    align-items: center;
+}
+
+#navbar > * {
+    margin-left: 25px;
+    color: var(--alternate-signature-color);
+}
+
+.island-container {
+    margin: 20px;
+    margin-bottom: 0;
+
+    display: flex;
+    flex-direction: row;
+    color: var(--alternate-signature-color);
+}
+
+.island-container > *{
+    padding: 20px;
+    margin: 10px;
+    height: 100%;
+
+    border: transparent;
+    border-radius: 10px;
+
+    background-color: rgba(23, 23, 23, 0.5);
+
+    flex-grow: 1;
+}
+
+#search {
+    display: flex;
+
+    flex-direction: column;
+}
+
+#search > div {
+    display: flex;
+
+    flex-direction: row;
+}
+
+#search > div:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+#search > div > * {
+    flex-grow: 1;
+}
+
+#search > div > *:not(:last-child) {
+    margin-right: 8px;
+}
+
+#colorType {
+    display: flex;
+
+    flex-direction: row;
+
+    background-color: #0000006e;
+
+    padding: 7px;
+
+    border-radius: 10px;
+}
+
+#colorType > input{
+    min-width: 20px;
+    max-width: 20px;
+
+    appearance: none;
+    border-width: 0px;
+    opacity: 30%;
+
+    aspect-ratio: 1;
+
+    margin-right: 4px;
+}
+
+#colorType > input:last-child{
+    margin-right: 0px;
+}
+
+#colorType > input:hover {
+    animation: ease-in-out;
+    animation-duration: 200ms;
+
+    transform: scale(1.2); 
+}
+
+#colorType > input:checked{
+    animation: ease-in-out;
+    animation-duration: 200ms;
+
+    opacity: 100%;
+}
+
+#cardNavigation {
+    display: flex;
+    flex-direction: column;
+}
+
+.cardPageNavigation {
+    display: flex;
+    flex-direction: row;
+
+    align-content: center;
+
+}
+
+.cardPageNavigation > div {
+    font-size: large;
+
+    color: white;
+
+    padding: 7px;
+
+    margin: 7px;
+
+    background-color: #0000006e;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    flex-direction: row;
+
+    text-align: center;
+}
+
+#results {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 4px;
+    grid-auto-rows: auto;
+}
+
+#results > div{
+    aspect-ratio: 2.5 / 3.5;
+    background-size: 100% 100%;
+}
+
+#details {
+    max-width: 40%;
+    min-width: 40%;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#details > div{
+
+    display: flex;
+
+    flex-direction: row;
+}
+
+#details > div > div {
+    flex-grow: 1;
+}
+
+#cardName {
+    flex-grow: 1;
+    text-align: center;
+}
+
+#card {
+    aspect-ratio: 2.5 / 3.5;
+    background-size: 100% 100%;
+
+    margin-right: 20px;
+}
+
+#cardInfo {
+    font-size: larger;
+    font-weight: bold;
+    max-width: 50%;
+}
+
+#cardInfo > div{
+    display: flex;
+    flex-direction: row;
+}
+
+#cardInfo > div :first-child{
+    flex-grow: 1;
+    text-align: left;
+}

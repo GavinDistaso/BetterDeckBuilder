@@ -1,0 +1,30 @@
+name: Create MTG SQLite DB
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  create-db:
+    name: Create MTG SQLite DB for Better Deck Builder
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Get Time
+        run: echo "NOW=$(date +'%Y-%m-%dT%H.%M.%S')" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+
+      - name: Run Script
+        run: |
+          python3 tools/createDB.py
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+            artifacts: "AllPrintings.sqlite"
+            body: Database created at ${{ env.NOW }}.
+            tag: ${{env.NOW}}
