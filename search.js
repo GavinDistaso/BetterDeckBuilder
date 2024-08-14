@@ -33,6 +33,32 @@ function inspectCard(card, preview=false){
     }
 
     document.getElementById('cardPrice').innerText = price;
+    
+    //
+        
+    let tcgPurchase = document.querySelector("#purchaseUrls > *[icon = \"tcg\"]");
+    let ckPurchase = document.querySelector("#purchaseUrls > *[icon = \"ck\"]");
+    let cmPurchase = document.querySelector("#purchaseUrls > *[icon = \"cm\"]");
+
+    tcgPurchase.onclick = ()=>{
+        if(card.tcgPlayer)
+            window.open(card.tcgPlayer);
+    };
+
+    ckPurchase.onclick = ()=>{
+        if(card.cardKingdom)
+            window.open(card.cardKingdom);
+    };
+
+    cmPurchase.onclick = ()=>{
+        if(card.cardMarket)
+            window.open(card.cardMarket);
+    };
+    
+
+    tcgPurchase.setAttribute('found', !!card.tcgPlayer);
+    ckPurchase.setAttribute('found', !!card.cardKingdom);
+    cmPurchase.setAttribute('found', !!card.cardMarket);
 
     //
 
@@ -87,7 +113,9 @@ function displayCards(results){
         cardSearchResults.appendChild(cardElement);
 
         console.log(card);
-    })
+    });
+
+
 }
 
 async function search(){

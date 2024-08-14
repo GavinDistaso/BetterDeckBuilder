@@ -5,16 +5,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Better Deck Builder</title>
         <link href="./style.css" rel="stylesheet">
-        <link href="./mana.css" rel="stylesheet">
+        <link href="./icons.css" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
         <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
     </head>
     <body>
+        <div id="loading">
+            <h1>Downloading Card Database</h1>
+            <p>This might take a moment</p>
+        </div>
+
         <div id="navbar">
             <h1>Better Deck Builder</h1>
         </div>
+
+        <div id="navbar-margin">Hey!!! Theres nothing here!! Im Just here to take space!</div>
 
         <div class="island-container">
             <div id="search">
@@ -122,6 +129,11 @@
                 <div>
                     <div>
                         <div id='card' style='background-image: url(https://cards.scryfall.io/normal/front/f/e/fe10200c-b525-4751-9f4b-15e0055de9e2.jpg);'> </div>
+                        <div id="purchaseUrls">
+                            <div icon='tcg'></div>
+                            <div icon='ck'></div>
+                            <div icon='cm'></div>
+                        </div>
                     </div>
                     <div id="cardInfo">
                         <div>

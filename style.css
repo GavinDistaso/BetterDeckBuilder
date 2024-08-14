@@ -111,7 +111,32 @@ input:hover, input:focus, select:hover, select:focus{
     border-color: var(--alternate-signature-color);
 } 
 
+#loading {
+    position: absolute;
 
+    width: 100%;
+    height: 100%;
+
+    overflow-y: hidden;
+
+    left: 0;
+    top: 0;
+
+    background-color: #000000ce;
+
+    backdrop-filter: blur(4px);
+
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    text-align: center;
+
+    z-index: 3;
+}
 
 #navbar {
     background-color: var(--signature-color);
@@ -123,11 +148,22 @@ input:hover, input:focus, select:hover, select:focus{
 
     flex-direction: row;
     align-items: center;
+
+    position: fixed;
+    top: 0;
+
+    z-index: 2;
 }
 
 #navbar > * {
     margin-left: 25px;
     color: var(--alternate-signature-color);
+}
+
+#navbar-margin {
+    width: 100%;
+    min-height: 50px;
+    max-height: 50px;
 }
 
 .island-container {
@@ -136,6 +172,8 @@ input:hover, input:focus, select:hover, select:focus{
 
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+
     color: var(--alternate-signature-color);
 }
 
@@ -162,6 +200,8 @@ input:hover, input:focus, select:hover, select:focus{
     display: flex;
 
     flex-direction: row;
+
+    flex-wrap: wrap;
 }
 
 #search > div:not(:last-child) {
@@ -266,18 +306,25 @@ input:hover, input:focus, select:hover, select:focus{
 }
 
 #details {
-    max-width: 40%;
-    min-width: 40%;
+    @media (orientation: landscape){
+        max-width: 40%;
+        min-width: 40%;
+    }
 
     display: flex;
     flex-direction: column;
 }
 
 #details > div{
-
     display: flex;
 
-    flex-direction: row;
+    @media (orientation: landscape){
+        flex-direction: row;
+    }
+
+    @media (orientation: portrait){
+        flex-direction: column;
+    }
 }
 
 #details > div > div {
@@ -294,6 +341,26 @@ input:hover, input:focus, select:hover, select:focus{
     background-size: 100% 100%;
 
     margin-right: 20px;
+}
+
+#purchaseUrls {
+    display: flex;
+    flex-direction: row;
+}
+
+#purchaseUrls > * {
+    width: 20px;
+    margin: 5px;
+}
+
+#purchaseUrls > *[found='true'] {
+    cursor: pointer;
+    opacity: 1;
+}
+
+#purchaseUrls > *[found='false'] {
+    cursor: default;
+    opacity: 0.5;
 }
 
 #cardInfo {

@@ -1,5 +1,6 @@
-*[color-type]{
+*[color-type], *[icon]{
     background-size: 100% 100%;
+    width: 1em;
     aspect-ratio: 1 / 1;
 }
 
@@ -25,4 +26,18 @@
 
 *[color-type = "C"]{
     background-image: url("./images/C.svg");
+}
+
+
+
+*[icon = "tcg"]{
+    background-image: url("./images/tcgPlayer.png");
+}
+
+*[icon = "cm"]{
+    background-image: url("./images/cardMarket.png");
+}
+
+*[icon = "ck"]{
+    background-image: url("./images/cardKingdom.png");
 }

@@ -4,7 +4,7 @@ const sqlPromise = initSqlJs({
 
 const databasePromise = 
     fetch(
-        './AllPrintings.sqlite',
+        'https://gavindistaso.github.io/BetterDeckBuilder/AllPrintings.sqlite',
         {cache: 'no-cache'}
     );
 async function run(){
@@ -13,6 +13,8 @@ async function run(){
     let data = await buf.arrayBuffer();
 
     const db = new SQL.Database(new Uint8Array(data));
+
+    document.getElementById('loading').style.display = 'none';
 
     return db;
 }
