@@ -24,7 +24,7 @@
         <div id="navbar-margin">Hey!!! Theres nothing here!! Im Just here to take space!</div>
 
         <div class="island-container">
-            <div id="search">
+            <div id="search" class='island'>
                 <h2>Card Search</h2>
 
                 <hr>
@@ -90,7 +90,7 @@
 
         <div class="island-container">
 
-            <div id="cardNavigation">
+            <div id="cardNavigation" class='island'>
                 <div class="cardPageNavigation">
                     <div onclick="previousPage();">
                         <img src="./icons/left_arrow.svg" alt="">
@@ -119,46 +119,70 @@
                         <img src="./icons/right_arrow.svg" alt="">
                     </div>
                 </div>
-           </div>
+            </div>
 
-            <div id="details">
-                <div>
-                    <h2 id='cardName'>Card Name</h2>
-                </div>
-                <hr>
-                <div>
+            <div id='cardIslands'>
+                <div id="details" class='island'>
                     <div>
-                        <div id='card' style='background-image: url(https://cards.scryfall.io/normal/front/f/e/fe10200c-b525-4751-9f4b-15e0055de9e2.jpg);'> </div>
-                        <div id="purchaseUrls">
-                            <div icon='tcg'></div>
-                            <div icon='ck'></div>
-                            <div icon='cm'></div>
-                        </div>
+                        <h2 id='cardName'>Card Name</h2>
                     </div>
-                    <div id="cardInfo">
+                    <hr>
+                    <div>
                         <div>
-                            <div>Type: </div>
-                            <div id='cardType'>Instant</div>
+                            <div id='card' style='background-image: url(https://cards.scryfall.io/normal/front/f/e/fe10200c-b525-4751-9f4b-15e0055de9e2.jpg);'> </div>
+                            <div style='display: flex; flex-direction: row;'>
+                                <div id="purchaseUrls">
+                                    <div icon='tcg'></div>
+                                    <div icon='ck'></div>
+                                    <div icon='cm'></div>
+                                </div>
+                                <input type="button" value="Add to deck" id="addInspectToDeck">
+                            </div>
                         </div>
-                        <div>
-                            <div>P/T: </div>
-                            <div id='cardPowerToughness'>2/4</div>
-                        </div>
-                        <div>
-                            <div>Price: </div>
-                            <div id='cardPrice'>$999.99</div>
-                        </div>
-                        <div>
-                            <div>Printings: </div>
-                            <div class="dropdown" selected="false">
-                                <input type="button" value="Select Print" id="currentPrintButton">
-                                <div class="dropdown-content" id="cardPrintings" >
+                        <div id="cardInfo">
+                            <div>
+                                <div>Type: </div>
+                                <div id='cardType'>Instant</div>
+                            </div>
+                            <div>
+                                <div>P/T: </div>
+                                <div id='cardPowerToughness'>2/4</div>
+                            </div>
+                            <div>
+                                <div>Price: </div>
+                                <div id='cardPrice'>$999.99</div>
+                            </div>
+                            <div>
+                                <div>Printings: </div>
+                                <div class="dropdown" selected="false">
+                                    <input type="button" value="Select Print" id="currentPrintButton">
+                                    <div class="dropdown-content" id="cardPrintings" >
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div>
+                <div id='deckBuider' class='island'>
+                    <div>
+                        <h2 id='deckName'>Deck Name</h2>
+                    </div>
+                    <div id='deckContextBar'>
+                        <div class='dropdown' selected="false">
+                            <input type="button" icon='download' id='deckDownload'>
+                            <div class="dropdown-content">
+                                <div id='downloadText'>Text list</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id='deckListContainer'>
+                        <table>
+                            <tbody id='deckList'>
+                                
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -167,6 +191,7 @@
         <script src="./script.js"></script>
         <script src="./card.js"></script>
         <script src="./database.js"></script>
+        <script src="./deckBuilder.js"></script>
         <script src="./search.js"></script>
     </body>
 </html>

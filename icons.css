@@ -2,6 +2,8 @@
     background-size: 100% 100%;
     width: 1em;
     aspect-ratio: 1 / 1;
+
+    display: inline-block;
 }
 
 *[color-type = "B"]{
@@ -40,4 +42,17 @@
 
 *[icon = "ck"]{
     background-image: url("./images/cardKingdom.png");
+}
+
+
+*[icon = "add"]{
+    background-image: url("./icons/add.svg");
+}
+
+*[icon = "remove"]{
+    background-image: url("./icons/remove.svg");
+}
+
+*[icon = "download"]{
+    background-image: url("./icons/download.svg");
 }

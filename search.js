@@ -61,6 +61,12 @@ function inspectCard(card, preview=false){
     cmPurchase.setAttribute('found', !!card.cardMarket);
 
     //
+        
+    document.getElementById('addInspectToDeck').onclick = ()=>{
+        addCardToDeckList(card, 1);
+    }
+
+    //
 
     if(!preview){
         document.getElementById('currentPrintButton').value = card.setCode;
@@ -108,6 +114,9 @@ function displayCards(results){
 
         cardElement.addEventListener('click', ()=>{
             inspectCard(card);
+
+            if(window.innerWidth < window.innerHeight)
+                document.querySelector("#details").scrollIntoView({behavior: 'smooth'})
         });
 
         cardSearchResults.appendChild(cardElement);
@@ -213,6 +222,8 @@ function nextPage(){
 
 function previousPage(){
     pageIndex--;
+
+    if(pageIndex < 0) pageIndex = 0;
 
     (async ()=>{
         await search();

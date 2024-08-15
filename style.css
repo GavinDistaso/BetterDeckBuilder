@@ -174,10 +174,12 @@ input:hover, input:focus, select:hover, select:focus{
     flex-direction: row;
     flex-wrap: wrap;
 
+    align-items: start;
+
     color: var(--alternate-signature-color);
 }
 
-.island-container > *{
+.island {
     padding: 20px;
     margin: 10px;
     height: 100%;
@@ -305,12 +307,19 @@ input:hover, input:focus, select:hover, select:focus{
     background-size: 100% 100%;
 }
 
-#details {
+#cardIslands {
+    flex-grow: 1;
+
     @media (orientation: landscape){
         max-width: 40%;
         min-width: 40%;
     }
 
+    display: flex;
+    flex-direction: column;
+}
+
+#details {
     display: flex;
     flex-direction: column;
 }
@@ -325,6 +334,8 @@ input:hover, input:focus, select:hover, select:focus{
     @media (orientation: portrait){
         flex-direction: column;
     }
+
+    max-height: min-content;
 }
 
 #details > div > div {
@@ -350,6 +361,7 @@ input:hover, input:focus, select:hover, select:focus{
 
 #purchaseUrls > * {
     width: 20px;
+    height: 20px;
     margin: 5px;
 }
 
@@ -363,10 +375,17 @@ input:hover, input:focus, select:hover, select:focus{
     opacity: 0.5;
 }
 
+#addInspectToDeck {
+    flex-grow: 1;
+}
+
 #cardInfo {
     font-size: larger;
     font-weight: bold;
-    max-width: 50%;
+    
+    @media (orientation: landscape){
+        max-width: 50%;
+    }
 }
 
 #cardInfo > div{
@@ -374,7 +393,66 @@ input:hover, input:focus, select:hover, select:focus{
     flex-direction: row;
 }
 
-#cardInfo > div :first-child{
+#cardInfo > div > :first-child{
     flex-grow: 1;
     text-align: left;
+}
+
+#deckBuilder{
+    display: flex;
+    flex-direction: column;
+}
+
+#deckName {
+    text-align: center;
+}
+
+#deckListContainer{
+    @media (orientation: landscape){
+        margin: 0px 10% 0px 10%;
+    }
+}
+
+#deckListContainer > table{
+    border-spacing:0;
+    width: 100%;
+}
+
+#deckList tr:not(:last-child) td {
+    border-bottom:1px solid var(--signature-color);
+}
+
+#deckList tr td:not(:last-child) {
+    padding-right: 10px;
+}
+
+#deckList td{
+    cursor: pointer;
+    user-select: none;
+
+    @media (orientation: landscape){
+        min-width: 50px;
+    }
+}
+
+#deckList td[content='addRemove']{
+    @media (orientation: portrait){
+        min-width: 50px;
+    }
+}
+
+#deckList tr :hover{
+    transition: linear;
+    transition-duration: 200ms;
+}
+
+#deckContextBar {
+    font-size: 20px;
+}
+
+#deckDownload{
+    width: 30px;
+    aspect-ratio: 1;
+    border: 0;
+    cursor: pointer;
 }
