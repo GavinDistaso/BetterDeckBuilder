@@ -13,4 +13,10 @@ window.addEventListener('click', (event)=>{
         let attr = targetParent.getAttribute('selected') == 'true';
         targetParent.setAttribute('selected', `${!attr}`);
     }
+
+    //
+    
+    if(targetParent.id == 'warnings'){
+        targetParent.removeChild(event.target);
+    }
 })

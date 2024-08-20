@@ -186,270 +186,42 @@ input:hover, input:focus, select:hover, select:focus{
     flex-grow: 1;
 }
 
-#search {
-    display: flex;
+#warnings {
+    position:fixed;
 
-    flex-direction: column;
-}
+    width: 400px;
 
-#search > div {
-    display: flex;
+    right: 0;
+    top: 60px;
 
-    flex-direction: row;
+    z-index: 3;
 
-    flex-wrap: wrap;
-}
-
-#search > div:not(:last-child) {
-    margin-bottom: 8px;
-}
-
-#search > div > * {
-    flex-grow: 1;
-}
-
-#search > div > *:not(:last-child) {
-    margin-right: 8px;
-}
-
-#colorType {
-    display: flex;
-
-    flex-direction: row;
-
-    background-color: #0000006e;
-
-    padding: 7px;
-
-    border-radius: 10px;
-}
-
-#colorType > input{
-    min-width: 20px;
-    max-width: 20px;
-
-    appearance: none;
-    border-width: 0px;
-    opacity: 30%;
-
-    aspect-ratio: 1;
-
-    margin-right: 4px;
-}
-
-#colorType > input:last-child{
-    margin-right: 0px;
-}
-
-#colorType > input:hover {
-    animation: ease-in-out;
-    animation-duration: 200ms;
-
-    transform: scale(1.2); 
-}
-
-#colorType > input:checked{
-    animation: ease-in-out;
-    animation-duration: 200ms;
-
-    opacity: 100%;
-}
-
-#cardNavigation {
-    display: flex;
-    flex-direction: column;
-}
-
-.cardPageNavigation {
-    display: flex;
-    flex-direction: row;
-
-    align-content: center;
-
-}
-
-.cardPageNavigation > div {
-    font-size: large;
-
-    color: white;
-
-    padding: 7px;
-
-    margin: 7px;
-
-    background-color: #0000006e;
-
-    border-radius: 10px;
-
-    display: flex;
-
-    flex-direction: row;
-
-    text-align: center;
-}
-
-#results {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto;
-    gap: 4px;
-    grid-auto-rows: auto;
-}
-
-#results > div{
-    aspect-ratio: 2.5 / 3.5;
-    background-size: 100% 100%;
-}
-
-#cardIslands {
-    flex-grow: 1;
-
-    @media (orientation: landscape){
-        max-width: 40%;
-        min-width: 40%;
-    }
+    color: black;
 
     display: flex;
     flex-direction: column;
-}
 
-#details {
-    display: flex;
-    flex-direction: column;
-}
-
-#details > div{
-    display: flex;
-
-    @media (orientation: landscape){
-        flex-direction: row;
-    }
-
-    @media (orientation: portrait){
-        flex-direction: column;
-    }
-
-    max-height: min-content;
-}
-
-#details > div > div {
-    flex-grow: 1;
-}
-
-#cardName {
-    flex-grow: 1;
-    text-align: center;
-}
-
-#card {
-    aspect-ratio: 2.5 / 3.5;
-    background-size: 100% 100%;
-
-    margin-right: 20px;
-}
-
-#purchaseUrls {
-    display: flex;
-    flex-direction: row;
-}
-
-#purchaseUrls > * {
-    width: 20px;
-    height: 20px;
-    margin: 5px;
-}
-
-#purchaseUrls > *[found='true'] {
-    cursor: pointer;
-    opacity: 1;
-}
-
-#purchaseUrls > *[found='false'] {
-    cursor: default;
-    opacity: 0.5;
-}
-
-#addInspectToDeck {
-    flex-grow: 1;
-}
-
-#cardInfo {
-    font-size: larger;
-    font-weight: bold;
-    
-    @media (orientation: landscape){
-        max-width: 50%;
-    }
-}
-
-#cardInfo > div{
-    display: flex;
-    flex-direction: row;
-}
-
-#cardInfo > div > :first-child{
-    flex-grow: 1;
-    text-align: left;
-}
-
-#deckBuilder{
-    display: flex;
-    flex-direction: column;
-}
-
-#deckName {
-    text-align: center;
-}
-
-#deckListContainer{
-    @media (orientation: landscape){
-        margin: 0px 5% 0px 5%;
-    }
-}
-
-#deckListContainer > table{
-    border-spacing:0;
-    width: 100%;
-}
-
-#deckList tr:not(:last-child) td {
-    border-bottom:1px solid var(--signature-color);
-}
-
-#deckList tr td:not(:last-child) {
-    padding-right: 10px;
-}
-
-#deckList td{
-    cursor: pointer;
     user-select: none;
-
-    max-width: calc(100% / 7);
 }
 
-#deckList td[content='addRemove'], #deckList td[content='colorId']{
-    min-width: 50px;
-}
+#warnings > div{
+    background-color: #FFFF00A0;
 
-#deckList tr :hover{
-    transition: linear;
-    transition-duration: 200ms;
-}
+    padding: 10px;
 
-#deckContextBar {
-    font-size: 20px;
+    border-radius: 10px;
+
+    text-align:center;
 
     display: flex;
-    flex-direction: row;
-}
 
-#deckContextBar > .dropdown{
-    min-width: 0;
-}
+    flex-direction: column;
 
-#deckDownload, #deckUpload{
-    width: 30px;
-    aspect-ratio: 1;
-    border: 0;
+    margin-bottom: 10px;
+
     cursor: pointer;
+}
+
+#warnings > div > *{
+    pointer-events: none; 
 }

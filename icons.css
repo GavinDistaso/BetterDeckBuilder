@@ -6,6 +6,10 @@
     display: inline-block;
 }
 
+*[icon-clickable] {
+    cursor: pointer;
+}
+
 *[color-type = "B"]{
     background-image: url("./images/B.svg");
 }
@@ -59,4 +63,16 @@
 
 *[icon = "upload"]{
     background-image: url("./icons/upload.svg");
+}
+
+*[icon = "edit"]{
+    background-image: url("./icons/edit.svg");
+}
+
+*[icon = "close"]{
+    background-image: url("./icons/close.svg");
+}
+
+*[icon = "delete"]{
+    background-image: url("./icons/delete.svg");
 }

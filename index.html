@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Better Deck Builder</title>
         <link href="./style.css" rel="stylesheet">
+        <link href="./cardSearch.css" rel="stylesheet">
+        <link href="./cardInspector.css" rel="stylesheet">
+        <link href="./deckBuilder.css" rel="stylesheet">
         <link href="./icons.css" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +18,9 @@
         <div id="loading">
             <h1>Downloading Card Database</h1>
             <p>This might take a moment</p>
+        </div>
+
+        <div id="warnings">
         </div>
 
         <div id="navbar">
@@ -162,21 +168,30 @@
                     </div>
                 </div>
                 <div id='deckBuider' class='island'>
-                    <div>
-                        <h2 id='deckName'>Deck Name</h2>
+                    <div id='deckNameBar'>
+                        <div style='width: 100%;'>
+                            <h2 id='deckName'>Deck Name</h2>
+                            <div id='editDeckName' icon='edit' icon-clickable></div>
+                        </div>
                     </div>
                     <div id='deckContextBar'>
                         <div class='dropdown' selected="false">
-                            <input type="button" icon='download' id='deckDownload'>
+                            <input type="button" icon='download' id='deckDownload' title='Download deck to file.'>
                             <div class="dropdown-content">
                                 <div id='downloadText'>Text list</div>
                             </div>
                         </div>
                         <div class='dropdown' selected="false">
-                            <input type="button" icon='upload' id='deckUpload'>
+                            <input type="button" icon='upload' id='deckUpload' title='Load deck from file.'>
                             <div class="dropdown-content">
                                 <div id='loadTextFile'>Text file</div>
                             </div>
+                        </div>
+
+                        <div icon='delete' icon-clickable title='Clear Deck' id='clearDeck'></div>
+
+                        <div style='margin-left: auto;'>
+                            <div id='deckCountPrice'>0 Cards : $0</div>
                         </div>
                     </div>
                     <hr>

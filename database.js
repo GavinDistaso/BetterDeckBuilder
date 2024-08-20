@@ -91,7 +91,7 @@ async function findCard(name, setCode){
         `
         SELECT * FROM data 
 
-        WHERE name = '${name}' 
+        WHERE name = '${name.replaceAll("'", "''")}' 
         ${setCode ? `AND setCode = '${setCode}'` : ''}
 
         limit 1

@@ -1,0 +1,80 @@
+#deckBuilder{
+    display: flex;
+    flex-direction: column;
+}
+
+#deckName {
+    text-align: center;
+    flex-shrink: 1;
+}
+
+#editDeckName {
+    margin-left: 5px;
+}
+
+#deckNameBar {
+    display: flex;
+}
+
+#deckNameBar > div{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#deckListContainer{
+    @media (orientation: landscape){
+        margin: 0px 5% 0px 5%;
+    }
+}
+
+#deckListContainer > table{
+    border-spacing:0;
+    width: 100%;
+}
+
+#deckList tr:not(:last-child) td {
+    border-bottom:1px solid var(--signature-color);
+}
+
+#deckList tr td:not(:last-child) {
+    padding-right: 10px;
+}
+
+#deckList td{
+    cursor: pointer;
+    user-select: none;
+
+    max-width: calc(100% / 7);
+}
+
+#deckList td[content='addRemove'], #deckList td[content='colorId']{
+    min-width: 50px;
+}
+
+#deckList tr :hover{
+    transition: linear;
+    transition-duration: 200ms;
+}
+
+#deckList td > h2{
+    color: #38c748;
+}
+
+#deckContextBar {
+    font-size: 20px;
+
+    display: flex;
+    flex-direction: row;
+}
+
+#deckContextBar > .dropdown{
+    min-width: 0;
+}
+
+#deckDownload, #deckUpload, #clearDeck{
+    width: 30px;
+    aspect-ratio: 1;
+    border: 0;
+    cursor: pointer;
+}
