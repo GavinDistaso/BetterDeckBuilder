@@ -91,7 +91,8 @@ async function findCard(name, setCode){
         `
         SELECT * FROM data 
 
-        WHERE name = '${name}' AND setCode = '${setCode}'
+        WHERE name = '${name}' 
+        ${setCode ? `AND setCode = '${setCode}'` : ''}
 
         limit 1
         `

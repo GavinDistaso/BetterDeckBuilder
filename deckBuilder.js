@@ -1,16 +1,18 @@
-let deckList = [];
+let _deckList = [];
+
+window.deckList = [];
 
 const deckListsElement = document.getElementById('deckList');
 
 function addCardToDeckList(card, count=1){
-    for(let i = 0; i < deckList.length; i++){
-        let cardEntry = deckList[i];
+    for(let i = 0; i < window.deckList.length; i++){
+        let cardEntry = window.deckList[i];
 
         if(cardEntry.card.name == card.name){
             cardEntry.count += count;
 
             if(cardEntry.count <= 0){
-                deckList.splice(i, 1);
+                window.deckList.splice(i, 1);
             }
 
             drawDeckList();
@@ -20,7 +22,7 @@ function addCardToDeckList(card, count=1){
 
     // if card not found in deck list
     if(count > 0){
-        deckList.push({
+        window.deckList.push({
             count: count,
             card: card
         });
@@ -29,10 +31,12 @@ function addCardToDeckList(card, count=1){
     drawDeckList();
 }
 
-function drawDeckList(){
+function drawDeckList(deck = window.deckList){
     let catagorisedDeckList = {};
 
-    deckList.forEach(cardEntry => {
+    console.log(deck);
+
+    deck.forEach(cardEntry => {
         let count = cardEntry.count;
         let card = cardEntry.card;
 
@@ -44,15 +48,13 @@ function drawDeckList(){
         catagorisedDeckList[categoryType].push(cardEntry);
     });
 
-    console.log(catagorisedDeckList);
-
     //
 
     deckListsElement.innerHTML = '';
 
     Object.entries(catagorisedDeckList).forEach(([category, cards]) => {
         let categoryElement = document.createElement('tr');
-        categoryElement.innerHTML = `<td colspan='6'><h2>${category}</h2></td>`;
+        categoryElement.innerHTML = `<td colspan='7'><h2>${category}</h2></td>`;
 
         deckListsElement.appendChild(categoryElement);
 
@@ -67,6 +69,7 @@ function drawDeckList(){
             cardElement.innerHTML = 
             `
                 <td content='count'>${count}</td>
+                <td content='set'>${card.setCode}</td>
                 <td content='name'>${card.name}</td>
                 <td content='type'>${card.type}</td>
                 <td content='price'>\$${nullSafty(card.price, '?')}</td>
@@ -91,14 +94,8 @@ function drawDeckList(){
     });
 }
 
-document.getElementById('downloadText').addEventListener('click', ()=>{
-    let output = '';
-
-    deckList.forEach(cardEntry => {
-        output += `${cardEntry.count} ${cardEntry.card.name} [${cardEntry.card.setCode}]\n`;
-    });
-
-    const file = new File([output], 'deck.txt', {
+function downloadFile(text, fileName){
+    const file = new File([text], fileName, {
         type: 'text/plain'
     });
 
@@ -116,4 +113,81 @@ document.getElementById('downloadText').addEventListener('click', ()=>{
     document.body.removeChild(link);
 
     window.URL.revokeObjectURL(url);
+}
+
+document.getElementById('downloadText').addEventListener('click', ()=>{
+    let output = '';
+
+    window.deckList.forEach(cardEntry => {
+        output += `${cardEntry.count} ${cardEntry.card.name} [${cardEntry.card.setCode}]\n`;
+    });
+
+    downloadFile(output, 'deck.txt');
+});
+
+async function loadTextList(deck){
+    let lines = deck.split('\n');
+
+    let newDeckList = [];
+
+    for(let i = 0; i < lines.length; i++){
+        let line = lines[i];
+
+        let components = line.trim().split(' ');
+
+        let count = parseInt(components[0]);
+
+        //
+
+        let setMatch = line.match(new RegExp('\\[(\\w*)\\]'), 'g');
+        let set = null;
+
+        if(setMatch){
+            set = setMatch[1].toUpperCase();
+        }
+
+        //
+        
+        let name = null;
+
+        if(set)
+            name = components.slice(1, -1).join(' ');
+        else
+            name = components.slice(1).join(' ');
+
+        if(count != NaN && name.length > 0){
+            let cardEntry = {
+                count: count,
+                card: await findCard(name, set)
+            };
+
+            newDeckList.push(cardEntry);
+        }
+    }
+
+    return newDeckList;
+}
+
+document.getElementById('loadTextFile').addEventListener('click', ()=>{
+    let input = document.createElement("input");
+    
+    input.type = "file";
+    input.setAttribute("multiple", false);
+    input.setAttribute("accept", "*/*");
+
+    input.onchange = async function (event) {
+        console.log(this.files[0])
+
+        let name = this.files[0].name.split('.')[0];
+
+        let content = await this.files[0].text();
+
+        let newDeck = await loadTextList(content);
+
+        window.deckList = newDeck;
+
+        drawDeckList();
+    }
+
+    input.click();
 });

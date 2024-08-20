@@ -56,3 +56,7 @@
 *[icon = "download"]{
     background-image: url("./icons/download.svg");
 }
+
+*[icon = "upload"]{
+    background-image: url("./icons/upload.svg");
+}
