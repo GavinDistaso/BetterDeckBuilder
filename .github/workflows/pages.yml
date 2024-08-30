@@ -24,11 +24,10 @@ jobs:
         run: |
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/AllPrintings.sqlite
 
-      - name: Minify JS and CSS
-        uses: nizarmah/auto-minify@v3
-        with:
-          overwrite: true
-          js_engine: 'uglify-js'
+      - name: Minify JS
+        run: |
+          npm install terser -g
+          python tools/compressJS.py
 
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
