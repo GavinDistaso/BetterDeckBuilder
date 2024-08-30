@@ -267,3 +267,19 @@ document.getElementById('clearDeck').addEventListener('click', ()=>{
         drawDeckList();
     }
 });
+
+document.getElementById('bargainBin').addEventListener('click', async ()=>{
+    let cardSearchPromises = [];
+
+    for(let i = 0; i < window.deckList.length; i++){
+        let card = window.deckList[i].card;
+
+        cardSearchPromises.push((async ()=>{
+            window.deckList[i].card = await findCard(card.name, null, 'price');
+        })());
+    }
+
+    await Promise.all(cardSearchPromises);
+
+    drawDeckList();
+});

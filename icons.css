@@ -76,3 +76,7 @@
 *[icon = "delete"]{
     background-image: url("./icons/delete.svg");
 }
+
+*[icon = "savings"]{
+    background-image: url("./icons/savings.svg");
+}

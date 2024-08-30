@@ -44,8 +44,6 @@ async function searchDB(
         conditions += `AND (${item})`;
     });
 
-    console.log(conditions);
-
     let results = await db.exec(
         `
         SELECT * from (
@@ -60,7 +58,7 @@ async function searchDB(
             FROM data 
 
             WHERE 
-                ${column} LIKE '%${text}%' 
+                ${column} LIKE '%${text.replaceAll("'", "''")}%' 
                 ${conditions}
         ) a
 
@@ -86,13 +84,18 @@ async function searchDB(
     return [cards, pageIndex * pageSize + 1, (pageIndex + 1) * pageSize, 0];
 }
 
-async function findCard(name, setCode){
+async function findCard(name, setCode = null, orderBy = null){
+    if(!name || name.length <= 0) 
+        return null;
+
     let results = await db.exec(
         `
         SELECT * FROM data 
 
         WHERE name = '${name.replaceAll("'", "''")}' 
         ${setCode ? `AND setCode = '${setCode}'` : ''}
+
+        ${orderBy ? `ORDER BY ${orderBy} COLLATE NOCASE ASC NULLS LAST` : ''}
 
         limit 1
         `
