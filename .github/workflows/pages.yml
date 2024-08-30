@@ -27,7 +27,8 @@ jobs:
       - name: Minify JS and CSS
         uses: nizarmah/auto-minify@v3
         with:
-          overwrite: true      
+          overwrite: true
+          js_engine: 'uglify-js'
 
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
