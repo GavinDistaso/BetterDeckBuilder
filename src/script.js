@@ -20,3 +20,13 @@ window.addEventListener('click', (event)=>{
         targetParent.removeChild(event.target);
     }
 })
+
+function colorIdentityListToHTML(list){
+    let elements = [];
+
+    list.forEach(element => {
+        elements.push(`<div color-type='${element.toUpperCase()}'></div>`)
+    });
+
+    return elements.join('');
+}

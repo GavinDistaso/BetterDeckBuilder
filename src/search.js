@@ -24,6 +24,9 @@ function inspectCard(card, preview=false){
     document.getElementById('card').style = `background-image: url(${card.image});`
 
     document.getElementById('cardType').innerText = card.type;
+
+    document.getElementById('cardIdentity').innerHTML = colorIdentityListToHTML(card.colorIdentity.split(', '));
+
     document.getElementById('cardPowerToughness').innerText = 
         `${nullSafty(card.power)}/${nullSafty(card.toughness)}`;
 

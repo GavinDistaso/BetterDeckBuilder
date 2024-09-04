@@ -4,11 +4,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Better Deck Builder</title>
-        <link href="./style.css" rel="stylesheet">
-        <link href="./cardSearch.css" rel="stylesheet">
-        <link href="./cardInspector.css" rel="stylesheet">
-        <link href="./deckBuilder.css" rel="stylesheet">
-        <link href="./icons.css" rel="stylesheet">
+        <link href="./style/style.css" rel="stylesheet">
+        <link href="./style/cardSearch.css" rel="stylesheet">
+        <link href="./style/cardInspector.css" rel="stylesheet">
+        <link href="./style/deckBuilder.css" rel="stylesheet">
+        <link href="./style/icons.css" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -51,7 +51,7 @@
                         <option value="">Any Type</option>
                         <option value="Land">Land</option>
                         <option value="Creature">Creature</option>
-                        <option value="Artifact">Artifactc</option>
+                        <option value="Artifact">Artifact</option>
                         <option value="Enchantment">Enchantment</option>
                         <option value="Instant">Instant</option>
                         <option value="Sorcery">Sorcery</option>
@@ -149,6 +149,10 @@
                                 <div id='cardType'>Instant</div>
                             </div>
                             <div>
+                                <div>Color Identity: </div>
+                                <div id='cardIdentity'></div>
+                            </div>
+                            <div>
                                 <div>P/T: </div>
                                 <div id='cardPowerToughness'>2/4</div>
                             </div>
@@ -209,10 +213,10 @@
         </div>
 
         <script src="dist/sql-wasm.js"></script>
-        <script src="./script.js"></script>
-        <script src="./card.js"></script>
-        <script src="./database.js"></script>
-        <script src="./deckBuilder.js"></script>
-        <script src="./search.js"></script>
+        <script src="./src/script.js"></script>
+        <script src="./src/card.js"></script>
+        <script src="./src/database.js"></script>
+        <script src="./src/deckBuilder.js"></script>
+        <script src="./src/search.js"></script>
     </body>
 </html>

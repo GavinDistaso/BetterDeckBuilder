@@ -103,7 +103,7 @@ function drawDeckList(deck = window.deckList){
                 <td content='name'>${card.name}</td>
                 <td content='type'>${card.type}</td>
                 <td content='price'>\$${nullSafty(card.price, '?')}</td>
-                <td content='colorId'>${card.colorIdentity}</td>
+                <td content='colorId'>${colorIdentityListToHTML(card.colorIdentity.split(', '))}</td>
                 <td content='addRemove'>
                     <div icon='remove' id='removeCard'></div>
                     <div icon='add' id='addCard'></div>
