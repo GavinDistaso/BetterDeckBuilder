@@ -35,6 +35,7 @@ jobs:
 
       - name: Set Path of Site
         run: |
+          mkdir BetterDeckBuilder
           mv * BetterDeckBuilder/
 
       - name: Upload Artifact
