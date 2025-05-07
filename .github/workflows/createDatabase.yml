@@ -25,6 +25,7 @@ jobs:
       - name: Create PHash DB
         run: |
           python3 -m pip install pillow
+          python3 -m pip install numpy
           python3 tools/mtgPHashDB.py
 
       - name: Create Release
