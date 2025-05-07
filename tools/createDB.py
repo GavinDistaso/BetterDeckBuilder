@@ -30,7 +30,7 @@ selectColumns = [
     'toughness',
     'type',
     'types',
-     # 'uuid',
+    'uuid',
     'variations',
 
      #  From Identifiers table
