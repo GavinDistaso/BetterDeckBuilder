@@ -43,7 +43,7 @@ const selectColumns = [
     'releaseDate'
 ];
 
-async function initCard(db, dbEntry, columns = selectColumns){
+async function initCard(db, dbEntry, columns){
     let card = {};
 
     columns.forEach((entry, i) => {

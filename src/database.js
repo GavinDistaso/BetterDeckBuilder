@@ -78,7 +78,7 @@ async function searchDB(
     let cards = [];
 
     results[0].values.forEach(async element => {
-        cards.push(await initCard(db, element, results[0].colums));
+        cards.push(await initCard(db, element, results[0].columns));
     });
 
     return [cards, pageIndex * pageSize + 1, (pageIndex + 1) * pageSize, 0];
@@ -104,5 +104,5 @@ async function findCard(name, setCode = null, orderBy = null){
     if(results.length == 0)
         return null;
 
-    return await initCard(db, results[0].values[0], results[0].colums);
+    return await initCard(db, results[0].values[0], results[0].columns);
 }
