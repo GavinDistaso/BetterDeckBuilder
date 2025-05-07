@@ -18,13 +18,17 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Run Script
+      - name: Create Card DB
         run: |
           python3 tools/createDB.py
+
+      - name: Create PHash DB
+        run: |
+          python3 tools/mtgPHashDB.py
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-            artifacts: "AllPrintings.sqlite"
+            artifacts: "AllPrintings.sqlite,MtgPHashes.sqlite"
             body: Database created at ${{ env.NOW }}.
             tag: ${{env.NOW}}

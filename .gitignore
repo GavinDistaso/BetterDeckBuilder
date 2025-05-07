@@ -1,2 +1,3 @@
 *.sqlite
 tools/*.sqlite
+__pycache__/
