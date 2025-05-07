@@ -83,7 +83,7 @@ def updateDB(maxCount):
             hash = PHash.phashImage(image)
 
             image.close()
-        except(...):
+        except:
             print(f'===== {uuid} Failed, skipping =====')
 
         cur.execute(
