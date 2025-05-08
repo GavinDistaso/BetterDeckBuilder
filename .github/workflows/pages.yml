@@ -23,6 +23,7 @@ jobs:
       - name: Download DB
         run: |
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/AllPrintings.sqlite
+          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgPHashes.sqlite
 
       - name: Minify JS
         run: |
