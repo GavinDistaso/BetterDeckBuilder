@@ -6,6 +6,7 @@ import sqlite3 as sql
 import time
 
 import os
+from multiprocessing import Pool
 
 def createPHashDB():
     if os.path.isfile('MtgPHashes.sqlite'):
@@ -30,6 +31,9 @@ def createPHashDB():
     con.commit()
 
     con.close()
+
+def openImage(data):
+    return Image.open(BytesIO(data))
 
 def updateDB(maxCount):
     # Download DB of all cards
@@ -60,7 +64,16 @@ def updateDB(maxCount):
 
     downloadCount = len(rows)
 
+    imageCache = []
+    uuidCache = []
+
     i = 0
+
+    iSuccess = 0
+
+    #
+
+    pool = Pool()
 
     for uuid, imageURL, side, layout in rows:
         i += 1
@@ -73,38 +86,48 @@ def updateDB(maxCount):
 
         imageURL = imageURL.replace('normal', 'small').replace('[side]', side)
 
-        hash = '0'
+        r = requests.get(imageURL)
 
-        try:
-            r = requests.get(imageURL)
-
-            image = Image.open(BytesIO(r.content))
-
-            hash = PHash.phashImage(image)
-
-            image.close()
-        except:
+        if(not r.ok):
             print(f'===== {uuid} Failed, skipping =====')
+        else:
+            iSuccess += 1
+            imageCache.append(r.content)
 
-        cur.execute(
-        f'''
-            INSERT INTO pHashes (uuid, pHash)
-            VALUES ('{uuid}', '{hash}')
-        '''
-        )
+            uuidCache.append(uuid)
+
+        if(len(imageCache) == 50):
+            imageCache = pool.map(openImage, imageCache)
+
+            hashes = pool.map(PHash.phashImage, imageCache)
+
+            for hash, uuid, image in zip(hashes, uuidCache, imageCache):
+                print(hash, uuid)
+                cur.execute(
+                f'''
+                    INSERT INTO pHashes (uuid, pHash)
+                    VALUES ('{uuid}', '{hash}')
+                '''
+                )
+
+                image.close()
+
+            imageCache.clear()
+            uuidCache.clear()
+
+
+
+            endMills = round(time.time() * 1000)
+            rate = (iSuccess) / (endMills - downloadStart) * 1000
+            timeLeft = (downloadCount - i) / rate
+            print(str(round(timeLeft / 60)) + 'mins remaining', f'({i}/{downloadCount})', f'{round(rate * 60)} img/m')
 
         endMills = round(time.time() * 1000)
         durration = endMills - startMills
 
         offset = max(100 - durration, 0)
 
-        rate = (i) / (endMills - downloadStart)
-
-        timeLeft = downloadCount / rate
-
-        print(hash, durration, str(round(timeLeft / 1000 / 60)) + 'mins', f'({i}/{downloadCount})')
-
-        time.sleep(durration / 1000)
+        time.sleep(offset / 1000)
 
         if(i % 50 == 0):
             con.commit()
@@ -116,7 +139,8 @@ def updateDB(maxCount):
 
     con.close()
 
-if not os.path.isfile('MtgPHashes.sqlite'):
-    createPHashDB()
+if __name__ == '__main__':
+    if not os.path.isfile('MtgPHashes.sqlite'):
+        createPHashDB()
 
-updateDB(20000)
+    updateDB(20000)
