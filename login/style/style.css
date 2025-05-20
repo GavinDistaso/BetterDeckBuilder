@@ -1,0 +1,49 @@
+#login-island {
+    @media (orientation: landscape){
+        max-width: 50vw;
+    }
+
+    @media (orientation: portrait){
+        max-width: 100%;
+    }
+}
+
+
+.rowFill {
+    display: flex;
+
+    
+    @media (orientation: landscape){
+        flex-flow: row;
+    }
+
+    @media (orientation: portrait){
+        flex-flow: column;
+    }
+
+    flex-wrap: wrap;
+
+    align-items: center;
+}
+
+.rowFill > *:not(:last-child){
+    @media (orientation: landscape){
+        margin-right: 8px;
+    }
+
+    @media (orientation: portrait){
+        margin-bottom: 8px;
+    }
+}
+
+.rowFill > *{
+    flex-grow: 1;
+
+    @media (orientation: portrait){
+        width: 100%;
+    }
+}
+
+.island > div{
+    margin-bottom: 8px; 
+}

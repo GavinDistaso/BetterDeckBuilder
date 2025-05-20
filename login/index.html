@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Better Deck Builder</title>
+        <link href="../style/style.css" rel="stylesheet">
+        <link href="./style/style.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div id="navbar">
+            <h1>Better Deck Builder</h1>
+        </div>
+
+        <div class="island-container" style="justify-content: center;">
+            <div id="login-island" class="island">
+                <h2>Login!</h2>
+                <hr>
+                <div class="rowFill">
+                    <input type="email" id="loginEmail" placeholder="amazingMan@example.com">
+                    <input type="password" id="loginPassword" placeholder="password...">
+                </div>
+                <div class="rowFill">
+                    <input type="button" id="loginButton" value="Login!">
+                </div>
+
+                <h2 style="margin-top: 40px;">Signup!</h2>
+
+                <hr>
+
+                <div class="rowFill">
+                    <input type="email" id="signupEmail" placeholder="amazingMan@example.com">
+                    <input type="text" id="signupUserName" placeholder="Name...">
+                    <input type="password" id="signupPassword" placeholder="password...">
+                </div>
+                <div class="rowFill">
+                    <input type="button" id="signupButton" value="Signup!">
+                </div>
+            </div>
+        </div>
+
+        <script src='../src/api.js'></script>
+        <script src='./scripts/userAuth.js'></script>
+    </body>
+</html>

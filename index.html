@@ -27,6 +27,8 @@
 
         <div id="navbar">
             <h1>Better Deck Builder</h1>
+
+            <a href="./login/" id='loginButton' style="margin-left: auto; margin-right: 16px;">Login</a>
         </div>
 
         <div class="island-container">
@@ -179,6 +181,15 @@
                             <h2 id='deckName'>Deck Name</h2>
                             <div id='editDeckName' icon='edit' icon-clickable></div>
                         </div>
+                        <div>
+                            <div icon='save' icon-clickable title='Save to account' id='accountSaveCollection'></div>
+                            <div style='min-width: 0px;' class='dropdown' selected="false">
+                                <input type="button" icon='load' id='accountLoadCollection' title='Load collection from account.'>
+                                <div id='accountLoadDropdownContent' class="dropdown-content" style="right: 0;">
+                                    <!--<div id='loadTextFile'>Text file</div>-->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id='deckContextBar'>
                         <div class='dropdown' selected="false">
@@ -215,6 +226,7 @@
         </div>
 
         <script src="dist/sql-wasm.js"></script>
+        <script src="./src/api.js"></script>
         <script src="./src/script.js"></script>
         <script src="./src/card.js"></script>
         <script src="./src/database.js"></script>

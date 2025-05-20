@@ -106,3 +106,18 @@ async function findCard(name, setCode = null, orderBy = null){
 
     return await initCard(db, results[0].values[0], results[0].columns);
 }
+
+async function getCardByUUID(uuid){
+    let results = await db.exec(
+        `
+        SELECT * FROM data
+        WHERE uuid = '${uuid}'
+        LIMIT 1
+        `
+    );
+
+    if(results.length == 0)
+        return null;
+
+    return await initCard(db, results[0].values[0], results[0].columns);
+}

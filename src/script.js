@@ -30,3 +30,17 @@ function colorIdentityListToHTML(list){
 
     return elements.join('');
 }
+
+//
+
+const loginLink = document.getElementById('loginButton');
+
+document.addEventListener('DOMContentLoaded', async function() {
+    if(!window.user){
+        await attemptGetUser();
+    }
+
+    if(window.user){
+        loginButton.innerText = 'Logged in as "' + window.user.userName + '"';
+    }
+});
