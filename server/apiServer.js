@@ -58,7 +58,7 @@ function readRequestBody(req){
     })
 }
 
-https.createServer({ sslCert, sslKey }, async (req, res) => {
+https.createServer({ cert: sslCert, key: sslKey }, async (req, res) => {
     let url = new URL('https://thisApi.com' + req.url);
 
     let body = await readRequestBody(req);
