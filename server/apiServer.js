@@ -7,7 +7,7 @@ const fs = require('fs');
 
 require('dotenv').config();
 
-const port = 4430;
+const port = 8443;
 
 // 1 hour experation time
 const bearerExperiationTime = 1 * 60 * 60 * 1000;
