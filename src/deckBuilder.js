@@ -289,17 +289,11 @@ document.getElementById('bargainBin').addEventListener('click', async ()=>{
 
 // Account collection saving & loading
 
-// only set when loading from account so you save to the correct id when saving to account
-window.accountCollectionID = null;
-
-async function deckListToAccountCollectionObject(deckName, deck){
-    let collection = {
-        name: deckName,
-        cards: []
-    };
+async function deckListToAccountCollectionObject(deck){
+    let collection = [];
 
     deck.forEach(cardEntry => {
-        collection.cards.push({
+        collection.push({
             n: cardEntry.count,
             id: cardEntry.card.uuid
         })
@@ -311,7 +305,7 @@ async function deckListToAccountCollectionObject(deckName, deck){
 async function loadAccountCollectionObjectToDeckList(collection){
     let deckList = [];
 
-    for(const cardEntry of collection.cards){
+    for(const cardEntry of collection){
         let card = await getCardByUUID(cardEntry.id);
 
         deckList.push({
@@ -320,7 +314,7 @@ async function loadAccountCollectionObjectToDeckList(collection){
         })
     }
 
-    return [collection.name, deckList];
+    return deckList;
 }
 
 const accountLoadDropdownContent = document.getElementById('accountLoadDropdownContent')
@@ -335,7 +329,7 @@ async function updateAccountCollectionLoadDropdown(){
         return;
     }
 
-    let [success, msg, collections] = await makeApiRequest('collection?collectionID=LIST', 'GET');
+    let [success, msg, collections] = await makeApiRequest('collectionList', 'GET');
 
     if(!success){
         alert(`An error has occured: '${msg}'`);
@@ -345,15 +339,13 @@ async function updateAccountCollectionLoadDropdown(){
         console.log(collection)
 
         let elem = document.createElement('div')
-        elem.innerText = collection.collection.name;
+        elem.innerText = collection.name;
 
         elem.addEventListener('click', async ()=>{
-            let [listName, deckList] = await loadAccountCollectionObjectToDeckList(collection.collection)
+            let deckList = await loadAccountCollectionObjectToDeckList(collection.collection)
 
             window.deckList = deckList;
-            window.deckName = listName;
-
-            window.accountCollectionID = collection.id;
+            window.deckName = collection.name;
 
             drawDeckList();
         });
@@ -371,27 +363,22 @@ accountSave.addEventListener('click', async ()=>{
         return;
     }
 
-    let collection = await deckListToAccountCollectionObject(window.deckName, window.deckList);
+    let collection = await deckListToAccountCollectionObject(window.deckList);
 
-    if(window.accountCollectionID == null || !confirm('Do you want to overwrite existing collection on account? ("no" will save it as a new collection)')){
-        [success, msg, _] = await makeApiRequest('/collection', 'POST', JSON.stringify(collection))
+    let obj = {name: window.deckName, collection: collection};
+    let [success, msg, _] = await makeApiRequest('/collectionUpdate', 'POST', JSON.stringify(obj))
 
-        if(success){
-            alert('New collection saved to profile!');
-        }else{
-            alert(`An error has occured: '${msg}'`);
-        }
-
-        await updateAccountCollectionLoadDropdown();
-    }else {
-        [success, msg, _] = await makeApiRequest(`/collection?collectionID=${window.accountCollectionID}`, 'PUT', JSON.stringify(collection))
+    if(success){
+        alert('New collection saved to profile!');
+    }else if(confirm("Are you sure you wish to overwrite your existing collection?")){
+        [success, msg, _] = await makeApiRequest('/collectionUpdate', 'PUT', JSON.stringify(obj))
 
         if(success){
-            alert('Collection overwritten on profile!');
-        }else{
+            alert('Collection overwritted to profile!');
+        } else {
             alert(`An error has occured: '${msg}'`);
         }
-
-        await updateAccountCollectionLoadDropdown();
     }
+
+    await updateAccountCollectionLoadDropdown();
 })

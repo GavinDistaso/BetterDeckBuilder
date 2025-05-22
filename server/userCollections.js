@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database('collections.sqlite')
 
-db.run('CREATE TABLE IF NOT EXISTS collections (userID UUID, collectionID INTEGER, collectionJSON TEXT);')
+db.run('CREATE TABLE IF NOT EXISTS collections (userID UUID, collectionName VARCHAR(30), collectionJSON TEXT);')
 
 export function closeDB(){
     db.close();
@@ -17,28 +17,24 @@ function dbGet(query){
     })
 }
 
-export async function collectionExists(userID, collectionID){
-    if(isNaN(collectionID)){ return false; }
-
-    let results = await dbGet(`SELECT * FROM collections WHERE userID = '${userID}' AND collectionID = ${collectionID}`);
+export async function collectionExists(userID, collectionName){
+    let results = await dbGet(`SELECT * FROM collections WHERE userID = '${userID}' AND collectionName = '${collectionName}'`);
 
     return !results || results.length != 0;
 }
 
-export async function appendNewCollection(userID, collectionObject){
+export async function appendNewCollection(userID, collectionName, collectionObject){
     let collection = JSON.stringify(collectionObject);
 
-    let maxCollectionID = (await dbGet(`SELECT MAX(collectionID) FROM collections WHERE userID = '${userID}';`))[0]['MAX(collectionID)'];
+    if(await collectionExists(userID, collectionName)){ return false; }
 
-    let nextCollectionID = (maxCollectionID != null) ? maxCollectionID + 1 : 0;
+    db.run(`INSERT INTO collections (userID, collectionName, collectionJSON) VALUES ('${userID}', '${collectionName}', '${collection}');`);
 
-    db.run(`INSERT INTO collections (userID, collectionID, collectionJSON) VALUES (?, ?, ?);`, [userID, nextCollectionID, collection]);
-
-    return nextCollectionID;
+    return true;
 }
 
-export async function getCollection(userID, collectionID){
-    let results = await dbGet(`SELECT * FROM collections WHERE userID = '${userID}' AND collectionID = ${collectionID}`);
+export async function getCollection(userID, collectionName){
+    let results = await dbGet(`SELECT * FROM collections WHERE userID = '${userID}' AND collectionName = '${collectionName}'`);
 
     if(!results || results.length == 0){ return null; }
 
@@ -50,22 +46,22 @@ export async function getCollection(userID, collectionID){
 export async function getCollectionList(userID){
     let results = await dbGet(`SELECT * FROM collections WHERE userID = '${userID}'`);
 
-    if(!results || results.length == 0){ return null; }
+    if(!results || results.length == 0){ return []; }
 
     let list = [];
 
     results.forEach(row => {
         let collection = JSON.parse(row.collectionJSON);
-        list.push({id: row.collectionID, collection: collection});
+        list.push({name: row.collectionName, collection: collection});
     });
 
     return list;
 }
 
-export async function setCollection(userID, collectionID, collectionObject){
+export async function setCollection(userID, collectionName, collectionObject){
     let collection = JSON.stringify(collectionObject);
 
-    if(!await collectionExists(userID, collectionID)){
+    if(!await collectionExists(userID, collectionName)){
         return false;
     }
 
@@ -73,7 +69,7 @@ export async function setCollection(userID, collectionID, collectionObject){
         `
         UPDATE collections
         SET collectionJSON = '${collection}'
-        WHERE userID = '${userID}' AND collectionID = ${collectionID}
+        WHERE userID = '${userID}' AND collectionName = '${collectionName}'
         `
     );
 

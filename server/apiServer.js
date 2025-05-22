@@ -58,7 +58,23 @@ function readRequestBody(req){
     })
 }
 
-https.createServer({ cert: sslCert, key: sslKey }, async (req, res) => {
+let options = {cert: sslCert, key: sslKey};
+
+if(!sslKeyFile || !sslCertFile){
+    options = {};
+}
+
+https.createServer(options, async (req, res) => {
+    try {
+        await processRequest(req, res);
+    } catch (error) {
+        writeApiResponse(res, {}, false, 500, `There was an unexpected internal server error: '${error}'`);
+
+        console.error(error);
+    }
+}).listen(port);
+
+async function processRequest(req, res){
     let url = new URL('https://thisApi.com' + req.url);
 
     let body = await readRequestBody(req);
@@ -198,64 +214,68 @@ https.createServer({ cert: sslCert, key: sslKey }, async (req, res) => {
                 permissionLevel: userData.permissionLevel
             }, true, 200, "Success");
         } break;
-        case '/collection': {
+        case '/collectionupdate': {
             if(!bearerCheck()){ break; }
 
             let userID = bearerData.userID;
 
             let method = req.method;
 
-            if(method != 'GET' && method != 'PUT' && method != 'POST'){
-                writeApiResponse(res, {}, false, 400, "Method must be GET or PUT");
+            if(method != 'PUT' && method != 'POST'){
+                writeApiResponse(res, {}, false, 400, "Method must be POST or PUT");
                 break;
             }
 
-            if(method == 'POST'){
-                let collection = JSON.parse(body);
+            let requestData = JSON.parse(body);
 
-                let collectionID = await collectionDB.appendNewCollection(userID, collection);
-                writeApiResponse(res, {collectionID: collectionID}, true, 201, "Collection successfully created.");
-            } else{
-                if(!url.searchParams.has('collectionID')){
-                    writeApiResponse(res, {}, false, 400, "'collectionID' not specified. Input 'LIST' to recive a collection list if using GET method.");
+            if(method == 'POST'){
+                if(!await collectionDB.appendNewCollection(userID, requestData.name, requestData.collection)){
+                    writeApiResponse(res, {}, false, 400, "A collection with that name already exists.");
                     break;
                 }
 
-                let collectionID = url.searchParams.get('collectionID');
+                writeApiResponse(res, {}, true, 201, "Collection successfully created.");
+            } else if(method == 'PUT'){
+                let success = await collectionDB.setCollection(userID, requestData.name, requestData.collection);
 
-                if(method == 'GET'){
-                    if(collectionID == 'LIST'){
-                        let list = await collectionDB.getCollectionList(userID);
-
-                        writeApiResponse(res, list, true, 200, "Collection list recived.");
-                    }
-                    else{
-                        let collection = await collectionDB.getCollection(userID, parseInt(collectionID))
-
-                        if(!collection){
-                            writeApiResponse(res, {}, false, 403, "Either collectionID is invalid or not accesable by this user.");
-                        } else{
-                            writeApiResponse(res, collection, true, 200, "Collection recived.");
-                        }
-                    }
-                } else if(method == 'PUT'){
-                    let collection = JSON.parse(body);
-
-                    let success = await collectionDB.setCollection(userID, parseInt(collectionID), collection);
-
-                    if(!success){
-                        writeApiResponse(res, {}, false, 403, "Either collectionID is invalid or not accesable by this user.");
-                    } else{
-                        writeApiResponse(res, {}, true, 200, "Collection updated.");
-                    }
+                if(!success){
+                    writeApiResponse(res, {}, false, 403, "Either collectionName is invalid/ nonexistant or not accesable by this user.");
+                } else{
+                    writeApiResponse(res, {}, true, 200, "Collection updated.");
                 }
             }
-
         } break;
+
+        case '/collectionget' : {
+            if(!bearerCheck()){ break; }
+
+            let userID = bearerData.userID;
+
+            let requestData = JSON.parse(body);
+
+            let collection = await collectionDB.getCollection(userID, requestData.name)
+
+            if(!collection){
+                writeApiResponse(res, {}, false, 403, "Either collectionName is invalid/ nonexistant or not accesable by this user.");
+            } else{
+                writeApiResponse(res, collection, true, 200, "Collection recived.");
+            }
+        }
+
+        case '/collectionlist': {
+            if(!bearerCheck()){ break; }
+
+            let userID = bearerData.userID;
+
+            let list = await collectionDB.getCollectionList(userID);
+
+            writeApiResponse(res, list, true, 200, "Collection list recived.");
+        } break;
+
         default: {
             writeApiResponse(res, {}, false, 404, "Endpoint not found.");
         } break;
     }
 
     res.end();
-}).listen(port);
+}

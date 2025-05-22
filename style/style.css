@@ -55,7 +55,9 @@ input, select{
 
     padding: 5px;
 
+    width: max-content;
     min-width: 140px;
+
     max-height: 200px;
 
     overflow-y:scroll;
@@ -63,6 +65,8 @@ input, select{
 
 .dropdown {
     min-width: 140px;
+
+    position: relative;
 }
 
 .dropdown > input{
@@ -72,10 +76,24 @@ input, select{
 
 .dropdown[selected='true'] > .dropdown-content{
     display:block;
+
+    margin-bottom: auto;
+
+    top: 0;
+
+    transform: translateY(-100%)
 }
 
 .dropdown[selected='false'] > .dropdown-content {
     display:none;
+}
+
+.dropdown-content[dropdown-right] {
+    right: 0;
+}
+
+:not(.dropdown-content[dropdown-right]){
+    left: 0;
 }
 
 .dropdown-content > *{

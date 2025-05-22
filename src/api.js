@@ -1,4 +1,4 @@
-const API = 'https://bdbapi.gavindistaso.com:8443';
+const API = window.location.origin != 'https://betterdeckbuilder.gavindistaso.com' ? 'http://127.0.0.1:8443' : ('https://bdbapi.gavindistaso.com:8443');
 
 window.user = null;
 
