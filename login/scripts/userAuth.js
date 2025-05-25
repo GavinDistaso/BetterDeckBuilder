@@ -9,14 +9,6 @@ const signupPassword = document.getElementById('signupPassword');
 const signupUsername = document.getElementById('signupUserName');
 
 //
-    //
-async function setCookie(name, value, options) {
-  await cookieStore.set({
-    name: name,
-    value: value,
-    ...options,
-  });
-}
 
 loginButton.addEventListener('click', async ()=>{
     let result = await (await fetch(`${API}/auth`, {
@@ -28,7 +20,7 @@ loginButton.addEventListener('click', async ()=>{
     })).json()
 
     if(result.success){
-        await setCookie('Bearer', result.payload.bearerToken, { expires: result.payload.expiresAt });
+        setCookie('Bearer', result.payload.bearerToken, result.payload.expiresAt);
         window.location.replace('./..');
     } else {
         alert(`Login failed : ${result.errMessage}`);
@@ -56,7 +48,7 @@ signupButton.addEventListener('click', async ()=>{
             }
         })).json()
 
-        await setCookie('Bearer', result.payload.bearerToken, { expires: result.payload.expiresAt });
+        setCookie('Bearer', result.payload.bearerToken, result.payload.expiresAt);
 
         window.location.replace('./..');
     } else {

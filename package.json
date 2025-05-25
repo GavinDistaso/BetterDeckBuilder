@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "dev": "live-server ./ --watch=./*,./*.*,./**",
+    "dev": "live-server ./ --watch=./*,./*.*,./** --ignorePattern=./*.sqlite",
     "api": "bun ./server/apiServer.js"
   },
   "repository": {
