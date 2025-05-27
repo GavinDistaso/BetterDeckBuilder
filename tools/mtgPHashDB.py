@@ -8,30 +8,6 @@ import time
 import os
 from multiprocessing import Pool
 
-def createPHashDB():
-    if os.path.isfile('MtgPHashes.sqlite'):
-        os.remove('MtgPHashes.sqlite')
-
-    # Download DB of all cards
-
-    con = sql.connect('MtgPHashes.sqlite')
-    cur = con.cursor()
-
-    cur.execute(
-        """
-        CREATE TABLE pHashes (
-            uuid UUID,
-            pHash VARCHAR(16)
-        )
-        """
-    )
-
-    cur.execute('VACUUM')
-
-    con.commit()
-
-    con.close()
-
 def openImage(data):
     return Image.open(BytesIO(data))
 
@@ -43,15 +19,17 @@ def updateDB(maxCount):
 
     # Download DB
 
-    con = sql.connect('MtgPHashes.sqlite')
+    con = sql.connect('MtgCHashes.sqlite')
     cur = con.cursor()
+
+    cur.execute("CREATE TABLE IF NOT EXISTS hashes (cardUUID UUID, hashes TEXT);")
 
     cur.execute("ATTACH DATABASE 'AllPrintings.sqlite' AS data;")
 
     cur.execute(
     f'''
         SELECT uuid, image, side, layout FROM data
-        WHERE data.uuid NOT IN (SELECT pHashes.uuid FROM pHashes)
+        WHERE data.uuid NOT IN (SELECT hashes.cardUUID FROM hashes)
         ORDER BY data.releaseDate DESC
         LIMIT {maxCount}
     ''')
@@ -71,7 +49,7 @@ def updateDB(maxCount):
 
     iSuccess = 0
 
-    #
+    #, min_segment_size=500, segmentation_image_size=1000
 
     pool = Pool()
 
@@ -99,18 +77,21 @@ def updateDB(maxCount):
         if(len(imageCache) == 50):
             imageCache = pool.map(openImage, imageCache)
 
-            hashes = pool.map(PHash.phashImage, imageCache)
+            try:
+                hashes = pool.map(PHash.CRHashImage, imageCache)
 
-            for hash, uuid, image in zip(hashes, uuidCache, imageCache):
-                print(hash, uuid)
-                cur.execute(
-                f'''
-                    INSERT INTO pHashes (uuid, pHash)
-                    VALUES ('{uuid}', '{hash}')
-                '''
-                )
+                for hash, uuid, image in zip(hashes, uuidCache, imageCache):
+                    print(hash, uuid)
+                    cur.execute(
+                    f'''
+                        INSERT INTO hashes (cardUUID, hashes)
+                        VALUES ('{uuid}', '{hash}')
+                    '''
+                    )
 
-                image.close()
+                    image.close()
+            except BaseException as e:
+                print(f'Error has occured, skipping: {e}')
 
             imageCache.clear()
             uuidCache.clear()
@@ -139,8 +120,40 @@ def updateDB(maxCount):
 
     con.close()
 
-if __name__ == '__main__':
-    if not os.path.isfile('MtgPHashes.sqlite'):
-        createPHashDB()
+def testDBAgainstImage(image):
+    src = PHash.CRHashImage(Image.open(image))
 
-    updateDB(20000)
+    con = sql.connect('MtgCHashes.sqlite')
+    cur = con.cursor()
+
+    cur.execute("SELECT hashes, cardUUID FROM hashes");
+
+    rows = cur.fetchall()
+
+    minD = 10000000;
+    minV = [];
+    minUUID = None;
+
+    for hashes, uuid in rows:
+        d = PHash.CRDistance(src, hashes)
+
+        if(d < minD):
+            minD = d
+            minV = hashes
+            minUUID = uuid
+
+        if(uuid == '19052f84-9c44-5a88-bd01-05ca566fc353'):
+            print(d)
+
+    print(minD, minUUID, src)
+
+    con.close()
+
+
+if __name__ == '__main__':
+    #if not os.path.isfile('MtgCHashes.sqlite'):
+        #createCHashDB()
+
+    #updateDB(200)
+
+    testDBAgainstImage('test2.jpg')

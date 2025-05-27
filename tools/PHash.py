@@ -1,6 +1,8 @@
 from PIL import Image
 import numpy as np
+import imagehash
 
+import cv2
 
 def debugOut(npMatrix, file):
     im = Image.new('L', (npMatrix.shape[1], npMatrix.shape[0]))
@@ -20,18 +22,18 @@ def normalize(npMatrix):
     return n
 
 # https://unix4lyfe.org/dct/
-def dftRows(data):
+def dftRows(data, rowCount=32, colCount=32):
     dctXCols = []
 
-    for rowi in range(0, 32):
+    for rowi in range(0, rowCount):
         row = data[rowi, :]
 
         dctXRows = []
 
-        for freq in range(0, 32):
+        for freq in range(0, colCount):
             T = 0
-            for x in range(0, 32):
-                T += row[x] * np.cos(np.pi * freq * (2 * x + 1) / (2 * 32))
+            for x in range(0, colCount):
+                T += row[x] * np.cos(np.pi * freq * (2 * x + 1) / (2 * colCount))
 
             dctXRows.append(0.5 * T)
 
@@ -90,7 +92,7 @@ def phashImage(image):
 
     bit = np.ceil(crop - median)
 
-    #debugOut(bit, 'out.png')
+    #debugout(bit, 'out.png')
 
     outHash = ''.join(['1' if n > 0.5 else '0' for n in bit.flatten()])
 
@@ -98,4 +100,30 @@ def phashImage(image):
 
     return hex(int(outHash, 2))[2:]
 
-#print(phashImage('./test.jpg'))
+def CRHashImage(image):
+    image = image.convert('L').resize((500, 500), Image.BICUBIC)
+
+    hash = imagehash.crop_resistant_hash(image, min_segment_size=500, segment_threshold=64)
+
+    return str(hash)
+
+def CRDistance(a, b):
+    aHash = imagehash.hex_to_multihash(a)
+    bHash = imagehash.hex_to_multihash(b)
+    totalMatching, totalHamming = aHash.hash_diff(bHash)
+
+    #print(totalMatching, totalHamming)
+
+    if(totalMatching == 0):
+        return 999999;
+
+    return int(totalHamming / totalMatching * 100)
+
+#a = CRHashImage(Image.open('./test.jpg'))
+#b = CRHashImage(Image.open('./test2.jpg'))
+#
+#diff = CRDistance(a, b)
+#
+#print(a, '\n\n', b, '\n\n', diff)
+#print(b)
+#print(phashImage(Image.open('./test.jpg')))

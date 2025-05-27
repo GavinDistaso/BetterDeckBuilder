@@ -7,23 +7,39 @@ const databasePromise =
         'https://betterdeckbuilder.gavindistaso.com/AllPrintings.sqlite',
         {cache: 'no-cache'}
     );
+
+const pHashDatabasePromise = 
+    fetch(
+        'https://betterdeckbuilder.gavindistaso.com/MtgPHashes.sqlite ',
+        {cache: 'no-cache'}
+    );
+
 async function run(){
-    const [SQL, buf] = await Promise.all([sqlPromise, databasePromise]);
+    const [SQL, buf, pHashBuf] = await Promise.all([sqlPromise, databasePromise, pHashDatabasePromise]);
 
     let data = await buf.arrayBuffer();
 
     const db = new SQL.Database(new Uint8Array(data));
 
+    //
+
+    let pHashData = await pHashBuf.arrayBuffer();
+
+    const pHashDB = new SQL.Database(new Uint8Array(pHashData))
+
+    //
+
     document.getElementById('loading').style.display = 'none';
 
-    return db;
+    return [db, pHashDB];
 }
 
 
 let db = null;
+let pHashDB = null;
 
 (async() => {
-    db = await run();
+    [db, pHashDB] = await run();
 })();
 
 
@@ -105,4 +121,54 @@ async function findCard(name, setCode = null, orderBy = null){
         return null;
 
     return await initCard(db, results[0].values[0], results[0].columns);
+}
+
+async function getCardByUUID(uuid){
+    let results = await db.exec(
+        `
+        SELECT * FROM data
+        WHERE uuid = '${uuid}'
+        LIMIT 1
+        `
+    );
+
+    if(results.length == 0)
+        return null;
+
+    return await initCard(db, results[0].values[0], results[0].columns);
+}
+
+function hammingDistance(x, y){
+    v = BigInt(x) ^ BigInt(y)
+
+    distance = BigInt(0)
+
+    for(let i = 0; i < 64; i++){
+        distance += v & 1n
+        v >>= 1n;
+    }
+
+    return distance;
+}
+
+async function findLowestHammingDistance(pHashHexInput){
+    data = pHashDB.exec('SELECT pHash, uuid FROM pHashes')[0].values;
+
+    let pHash = parseInt(pHashHexInput, 16)
+
+    let minDistance = 64;
+    let minUUID = 0;
+
+    data.forEach(([pHashHex, uuid]) => {
+        let testPHash = parseInt(pHashHex, 16)
+
+        let distance = hammingDistance(pHash, testPHash);
+
+        if (distance < minDistance && testPHash != 0){
+            minDistance = distance;
+            minUUID = uuid;
+        }
+    }); 
+
+    return [await getCardByUUID(minUUID), minDistance]
 }

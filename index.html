@@ -20,6 +20,13 @@
             <p>This might take a moment</p>
         </div>
 
+        <div id="scanMenu" style="">
+            <h1>Scan Card</h1>
+            <video style="display: none" id="scanPreview">Video not available...</video>
+            <input id="scanButton" type="button" value="Scan Card">
+            <canvas id="scanVideoReader"></canvas>
+        </div>
+
         <div id="warnings">
         </div>
 
@@ -88,6 +95,10 @@
                         <option value="ASC">Ascending</option>
                         <option value="DESC">Descending</option>
                     </select>
+                </div>
+
+                <div style="display: none;">
+                    <input type="button" value="Scan Card" id="scanCard">
                 </div>
             </div>
         </div>
@@ -212,11 +223,15 @@
             </div>
         </div>
 
+        <script type="text/javascript" src="https://unpkg.com/jso/dist/jso.js"></script>
         <script src="dist/sql-wasm.js"></script>
         <script src="./src/script.js"></script>
         <script src="./src/card.js"></script>
         <script src="./src/database.js"></script>
         <script src="./src/deckBuilder.js"></script>
         <script src="./src/search.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/phash-js/dist/phash.js"></script>
+        <script async src="https://docs.opencv.org/master/opencv.js" type="text/javascript"></script>
+        <script type="module" src="./src/cardScanner.js"></script>
     </body>
 </html>
