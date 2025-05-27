@@ -1,3 +1,5 @@
 *.sqlite
 tools/*.sqlite
 __pycache__/
+node_modules/
+.env

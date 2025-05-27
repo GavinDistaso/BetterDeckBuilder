@@ -80,3 +80,11 @@
 *[icon = "savings"]{
     background-image: url("../icons/savings.svg");
 }
+
+*[icon = "save"]{
+    background-image: url("../icons/save.svg");
+}
+
+*[icon = "load"]{
+    background-image: url("../icons/load.svg");
+}

@@ -249,6 +249,8 @@ document.getElementById('loadTextFile').addEventListener('click', ()=>{
 
         window.deckName = name;
 
+        window.accountCollectionID = null;
+
         drawDeckList();
 
         alertUnfoundCards(unfoundCards);
@@ -263,6 +265,7 @@ document.getElementById('clearDeck').addEventListener('click', ()=>{
     if(deleteConfirm){
         window.deckList = [];
         window.deckName = 'Untitled Deck';
+        window.accountCollectionID = null;
 
         drawDeckList();
     }
@@ -283,3 +286,99 @@ document.getElementById('bargainBin').addEventListener('click', async ()=>{
 
     drawDeckList();
 });
+
+// Account collection saving & loading
+
+async function deckListToAccountCollectionObject(deck){
+    let collection = [];
+
+    deck.forEach(cardEntry => {
+        collection.push({
+            n: cardEntry.count,
+            id: cardEntry.card.uuid
+        })
+    });
+
+    return collection;
+}
+
+async function loadAccountCollectionObjectToDeckList(collection){
+    let deckList = [];
+
+    for(const cardEntry of collection){
+        let card = await getCardByUUID(cardEntry.id);
+
+        deckList.push({
+            count: cardEntry.n,
+            card: card
+        })
+    }
+
+    return deckList;
+}
+
+const accountLoadDropdownContent = document.getElementById('accountLoadDropdownContent')
+const accountSave = document.getElementById('accountSaveCollection')
+
+async function updateAccountCollectionLoadDropdown(){
+    [...accountLoadDropdownContent.children].forEach(child => {
+        child.remove();
+    });
+
+    if(!window.user && !await attemptGetUser()){
+        return;
+    }
+
+    let [success, msg, collections] = await makeApiRequest('collectionList', 'GET');
+
+    if(!success){
+        alert(`An error has occured: '${msg}'`);
+    }
+
+    collections.forEach(async collection => {
+        console.log(collection)
+
+        let elem = document.createElement('div')
+        elem.innerText = collection.name;
+
+        elem.addEventListener('click', async ()=>{
+            let deckList = await loadAccountCollectionObjectToDeckList(collection.collection)
+
+            window.deckList = deckList;
+            window.deckName = collection.name;
+
+            drawDeckList();
+        });
+
+        accountLoadDropdownContent.appendChild(elem);
+    })
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    await updateAccountCollectionLoadDropdown();
+});
+
+accountSave.addEventListener('click', async ()=>{
+    if(!window.user && !await attemptGetUser()){
+        return;
+    }
+
+    let collection = await deckListToAccountCollectionObject(window.deckList);
+
+    let obj = {name: window.deckName, collection: collection};
+    let [success, msg, _] = await makeApiRequest('/collectionUpdate', 'POST', JSON.stringify(obj))
+
+    if(success){
+        alert('New collection saved to profile!');
+    }else if(confirm("Are you sure you wish to overwrite your existing collection?")){
+        [success, msg, _] = await makeApiRequest('/collectionUpdate', 'PUT', JSON.stringify(obj))
+
+        if(success){
+            alert('Collection overwritted to profile!');
+        } else {
+            alert(`An error has occured: '${msg}'`);
+        }
+    }
+
+    await updateAccountCollectionLoadDropdown();
+})

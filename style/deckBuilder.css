@@ -72,7 +72,11 @@
     min-width: 0;
 }
 
-#deckDownload, #deckUpload, #clearDeck, #bargainBin {
+#accountLoadCollection ~ *{
+    font-size: 20px;
+}
+
+#deckDownload, #deckUpload, #clearDeck, #bargainBin, #accountSaveCollection, #accountLoadCollection {
     width: 30px;
     aspect-ratio: 1;
     border: 0;
