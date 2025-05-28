@@ -24,7 +24,7 @@ jobs:
 
       - name: Download Previous PHash
         run: |
-          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgPHashes.sqlite 
+          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgCHashes.sqlite 
 
       - name: Create/ Update PHash DB
         env:
@@ -33,6 +33,7 @@ jobs:
         run: |
           python3 -m pip install pillow
           python3 -m pip install numpy
+          python3 -m pip install imagehash
           python3 tools/mtgPHashDB.py
 
       - name: Create Release
