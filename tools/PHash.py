@@ -103,7 +103,7 @@ def phashImage(image):
 def CRHashImage(image):
     image = image.convert('L').resize((500, 500), Image.BICUBIC)
 
-    hash = imagehash.crop_resistant_hash(image, min_segment_size=500, segment_threshold=64)
+    hash = imagehash.crop_resistant_hash(image, min_segment_size=500, segment_threshold=64, segmentation_image_size=300)
 
     return str(hash)
 

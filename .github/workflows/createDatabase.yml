@@ -27,6 +27,9 @@ jobs:
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgPHashes.sqlite 
 
       - name: Create/ Update PHash DB
+        env:
+          USR: ${{ secrets.USR }}
+          PASS: ${{ secrets.PASS }}
         run: |
           python3 -m pip install pillow
           python3 -m pip install numpy
@@ -35,6 +38,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-            artifacts: "AllPrintings.sqlite,MtgPHashes.sqlite"
+            artifacts: "AllPrintings.sqlite,MtgCHashes.sqlite"
             body: Database created at ${{ env.NOW }}.
             tag: ${{env.NOW}}

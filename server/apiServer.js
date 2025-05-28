@@ -4,6 +4,11 @@ const collectionDB = require('./userCollections.js')
 
 const https = require('https');
 const fs = require('fs');
+const { execSync } = require('child_process');
+
+const nodecallspython = require("node-calls-python");
+
+const py = nodecallspython.interpreter;
 
 require('dotenv').config();
 
@@ -73,6 +78,9 @@ https.createServer(options, async (req, res) => {
         console.error(error);
     }
 }).listen(port);
+
+let reverseCardSearchModule = await py.import('./tools/reverseCardSearch.py');
+let mtgPHashDBModule = await py.import('./tools/mtgPHashDB.py');
 
 async function processRequest(req, res){
     let url = new URL('https://thisApi.com' + req.url);
@@ -270,6 +278,30 @@ async function processRequest(req, res){
             let list = await collectionDB.getCollectionList(userID);
 
             writeApiResponse(res, list, true, 200, "Collection list recived.");
+        } break;
+
+        case '/cardreversesearch': {
+            if(!bearerCheck()){ break; }
+
+            if(bearerData.permissionLevel < 1){
+                writeApiResponse(res, {}, false, 403, "You do not have sufficent privilege for this action.");
+                break;
+            }
+
+            let [cardUUID, distance] = await py.call(reverseCardSearchModule, "reverseCardSearch", body)
+
+            writeApiResponse(res, {cardUUID: cardUUID, distance: distance}, true, 200, "Results...");
+        } break;
+
+        case '/backend/updateimagehashdb' : {
+            if(!bearerCheck()){ break; }
+
+            if(bearerData.permissionLevel < 2){
+                writeApiResponse(res, {}, false, 403, "You do not have sufficent privilege for this action.");
+                break;
+            }
+
+            execSync('wget https://betterdeckbuilder.gavindistaso.com/MtgCHashes.sqlite -O MtgCHashes.sqlite')
         } break;
 
         default: {

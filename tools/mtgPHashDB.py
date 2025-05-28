@@ -19,7 +19,7 @@ def updateDB(maxCount):
 
     # Download DB
 
-    con = sql.connect('MtgCHashes.sqlite')
+    con = sql.connect('../MtgCHashes.sqlite')
     cur = con.cursor()
 
     cur.execute("CREATE TABLE IF NOT EXISTS hashes (cardUUID UUID, hashes TEXT);")
@@ -120,10 +120,10 @@ def updateDB(maxCount):
 
     con.close()
 
-def testDBAgainstImage(image):
-    src = PHash.CRHashImage(Image.open(image))
+def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
+    src = PHash.CRHashImage(image)
 
-    con = sql.connect('MtgCHashes.sqlite')
+    con = sql.connect(db)
     cur = con.cursor()
 
     cur.execute("SELECT hashes, cardUUID FROM hashes");
@@ -142,18 +142,25 @@ def testDBAgainstImage(image):
             minV = hashes
             minUUID = uuid
 
-        if(uuid == '19052f84-9c44-5a88-bd01-05ca566fc353'):
-            print(d)
+    con.close();
 
-    print(minD, minUUID, src)
+    #print(minD, minUUID, src)
 
-    con.close()
+    return [minD, minUUID]
+
+def downloadDB(output='MtgCHashes.sqlite'):
+    os.system(f'wget https://betterdeckbuilder.gavindistaso.com/MtgCHashes.sqlite -O {output}')
 
 
 if __name__ == '__main__':
-    #if not os.path.isfile('MtgCHashes.sqlite'):
-        #createCHashDB()
+    updateDB(20000)
 
-    #updateDB(200)
+    URL = 'https://bdbapi.gavindistaso.com:8443/'
 
-    testDBAgainstImage('test2.jpg')
+    r = requests.get(URL + 'auth', headers={'credentials-email': os.environ['USR'], 'credentials-password': os.environ['PASS']})
+
+    bearer = r.json()['payload']['bearerToken']
+
+    r = requests.get(URL + 'backend/updateimagehashdb', headers={'authorization': 'Bearer ' + bearer})
+
+    print(r.json())

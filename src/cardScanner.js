@@ -2,7 +2,7 @@ const scannerPreview = document.getElementById('scanPreview')
 const scanButton = document.getElementById('scanButton')
 const canvas = document.getElementById('scanVideoReader')
 
-const ctx = canvas.getContext('2d')
+const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
 window.onload = async function() {
     window.cv = await window.cv;
@@ -249,6 +249,7 @@ async function detectCardPositions(){
             /*
 
             let side1Length = Math.hypot(verts[0].x - verts[1].x, verts[0].y - verts[1].y)
+
             let side2Length = Math.hypot(verts[1].x - verts[2].x, verts[1].y - verts[2].y)
             let side3Length = Math.hypot(verts[2].x - verts[3].x, verts[2].y - verts[3].y)
             let side4Length = Math.hypot(verts[3].x - verts[0].x, verts[3].y - verts[0].y)
@@ -273,7 +274,7 @@ async function detectCardPositions(){
     let color = new cv.Scalar(255,0,0, 255);
 
 
-    let morphed = new cv.Mat(500, 500 * 0.714, resized.type);
+    let morphed = new cv.Mat(500, 500, resized.type);
 
     let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
         morphed.cols, 0,
@@ -284,7 +285,11 @@ async function detectCardPositions(){
 
     let dataURLS = []
 
+    let passThrough = false;
+
     allContours.forEach(async cardContour => {
+        if(passThrough){return;}
+
         let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, cardContour);
 
         //console.log(srcTri.data32F)
@@ -292,6 +297,7 @@ async function detectCardPositions(){
         let transformMatrix = cv.getPerspectiveTransform(srcTri, dstPoints);
 
         cv.warpPerspective(gray, morphed, transformMatrix, morphed.size(), cv.INTER_LINEAR, cv.BORDER_CONSTANT);
+        //cv.resize(morphed, morphed, new cv.Size(500, 500), 0, 0, cv.INTER_CUBIC);
 
         //
 
@@ -299,15 +305,45 @@ async function detectCardPositions(){
 
         //console.log(cardContour)
 
-        dataURLS.push(canvas.toDataURL("image/png"))
+        //
+        let imageData = canvas.toDataURL("image/jpeg").slice(23);
+
+        //console.log(imageData)
+
+        let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', imageData);
+
+        if(!success){
+            alert('An error has occured scanning a card: ' + msg)
+            passThrough = true;
+            return;
+        }
+
+        if(payload.distance > 10000){
+            return;
+        }
+
+        let cardUUID = payload.cardUUID;
+
+        let card = await getCardByUUID(cardUUID);
+
+        console.log(card, payload.distance)
 
         let tmp = new cv.Mat();
 
         srcTri.convertTo(tmp, cv.CV_32SC2)
 
+        let M = cv.moments(tmp);
+
+        let cX = M.m10 / M.m00;
+        let cY = M.m01 / M.m00;
+
+        cv.putText(resized, card.name, new cv.Point(cX, cY), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Scalar(255, 255, 0, 255), 2, cv.LINE_AA)
+        cv.putText(resized, "Q"+payload.distance, new cv.Point(cX, cY + 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Scalar(255, 255, 0, 255), 2, cv.LINE_AA)
+
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
         cv.polylines(resized, vertVectors, true, color, 3)
+        cv.imshow('scanVideoReader', resized);
     });
 
     cv.imshow('scanVideoReader', resized);
@@ -324,31 +360,17 @@ async function detectCardPositions(){
     return dataURLS;
 }
 
+let allowPreview = true;
+
 scanButton.addEventListener('click', async ()=>{
     await renderPreview();
+    allowPreview = false;
     let dataBlobs = await detectCardPositions();
-
-    dataBlobs.forEach(async dataBlobURL => {
-        const res = await fetch(dataBlobURL);
-
-        const blob = await res.blob()
-
-        const file = new File([blob], "scan.png", { type: blob.type });
-
-        let hash = await pHash.hash(file);
-
-        let [card, hamDistance] = await findLowestHammingDistance(hash.toHex())
-
-        if(hamDistance <= 4){
-            console.log(card, hamDistance)
-        } else {
-            console.log('Image failed to find an ok match.')
-        }
-    });
 })
 
 async function loop(){
-    //await renderPreview();
+    if(allowPreview)
+        await renderPreview();
     //await detectCardPositions();
     window.requestAnimationFrame(loop);
 }
