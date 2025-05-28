@@ -23,6 +23,7 @@ jobs:
           python3 tools/createDB.py
 
       - name: Download Previous PHash
+        continue-on-error: true
         run: |
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgCHashes.sqlite 
 
