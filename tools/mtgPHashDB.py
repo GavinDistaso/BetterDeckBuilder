@@ -19,7 +19,7 @@ def updateDB(maxCount):
 
     # Download DB
 
-    con = sql.connect('../MtgCHashes.sqlite')
+    con = sql.connect('MtgCHashes.sqlite')
     cur = con.cursor()
 
     cur.execute("CREATE TABLE IF NOT EXISTS hashes (cardUUID UUID, hashes TEXT);")
@@ -153,14 +153,18 @@ def downloadDB(output='MtgCHashes.sqlite'):
 
 
 if __name__ == '__main__':
-    updateDB(2000)
+    updateDB(200)
 
     URL = 'https://bdbapi.gavindistaso.com:8443/'
 
     r = requests.get(URL + 'auth', headers={'credentials-email': os.environ['USR'], 'credentials-password': os.environ['PASS']})
 
+    print(r.text)
+
     bearer = r.json()['payload']['bearerToken']
 
     r = requests.get(URL + 'backend/updateimagehashdb', headers={'authorization': 'Bearer ' + bearer})
+
+    print(r.text)
 
     print(r.json())
