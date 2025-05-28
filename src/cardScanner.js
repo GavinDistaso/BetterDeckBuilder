@@ -6,8 +6,6 @@ const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
 window.onload = async function() {
     window.cv = await window.cv;
-
-    window.requestAnimationFrame(loop);
 }
 
 navigator.mediaDevices
@@ -15,10 +13,12 @@ navigator.mediaDevices
     .then((stream) => {
         scannerPreview.srcObject = stream;
         scannerPreview.play();
+
+        window.requestAnimationFrame(loop);
     })
 
 async function renderPreview(){
-    if(!window.cv){ return false; }
+    if(!window.cv){ alert('AGHH!'); return; }
 
     canvas.width = scannerPreview.videoWidth;
     canvas.height = scannerPreview.videoHeight;
@@ -285,7 +285,7 @@ async function detectCardPositions(){
 
     let dataURLS = []
 
-    let passThrough = false;
+    var passThrough = false;
 
     allContours.forEach(async cardContour => {
         if(passThrough){return;}
@@ -307,6 +307,8 @@ async function detectCardPositions(){
 
         //
         let imageData = canvas.toDataURL("image/jpeg").slice(23);
+
+        await fetch(canvas.toDataURL("image/jpeg"))
 
         //console.log(imageData)
 
@@ -347,15 +349,6 @@ async function detectCardPositions(){
     });
 
     cv.imshow('scanVideoReader', resized);
-
-    src.delete();
-    //resized.delete();
-    //gray.delete();
-    //blur.delete();
-    //canny.delete();
-    //close.delete();
-    //morphed.delete();
-    //hierarchy.delete();
 
     return dataURLS;
 }
