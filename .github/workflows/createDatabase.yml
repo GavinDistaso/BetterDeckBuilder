@@ -28,6 +28,7 @@ jobs:
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgCHashes.sqlite 
 
       - name: Create/ Update PHash DB
+        continue-on-error: true
         env:
           USR: ${{ secrets.USR }}
           PASS: ${{ secrets.PASS }}

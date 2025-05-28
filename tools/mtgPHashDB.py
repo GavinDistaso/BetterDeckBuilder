@@ -153,7 +153,7 @@ def downloadDB(output='MtgCHashes.sqlite'):
 
 
 if __name__ == '__main__':
-    updateDB(20000)
+    updateDB(2000)
 
     URL = 'https://bdbapi.gavindistaso.com:8443/'
 
