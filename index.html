@@ -24,7 +24,7 @@
 
         <div id="scanMenu" style="display: none;">
             <h1>Scan Card</h1>
-            <video style="display: none" id="scanPreview">Video not available...</video>
+            <video id="scanPreview">Video not available...</video>
             <input id="scanButton" type="button" value="Scan Card">
             <canvas id="scanVideoReader"></canvas>
         </div>
@@ -35,7 +35,7 @@
         <div id="navbar">
             <h1>Better Deck Builder</h1>
 
-            <a href="#" style="margin-left: auto; margin-right: 16px;" onclick="document.getElementById('scanMenu').style.display = 'flex'">Scan test!</a>
+            <a href="#" style="margin-left: auto; margin-right: 16px;" onclick="document.getElementById('scanMenu').style.display = 'flex'; alert('v1');">Scan test!</a>
             <a href="./login/" id='loginButton' style="margin-left: auto; margin-right: 16px;">Login</a>
         </div>
 
