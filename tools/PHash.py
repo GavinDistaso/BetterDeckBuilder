@@ -112,8 +112,6 @@ def CRDistance(a, b):
     bHash = imagehash.hex_to_multihash(b)
     totalMatching, totalHamming = aHash.hash_diff(bHash)
 
-    #print(totalMatching, totalHamming)
-
     if(totalMatching == 0):
         return 999999;
 

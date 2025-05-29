@@ -367,7 +367,7 @@ scanButton.addEventListener('click', async ()=>{
 
     setTimeout(()=>{
         allowPreview = true;
-    }, 5000)
+    }, 20000)
 })
 
 function loop(){

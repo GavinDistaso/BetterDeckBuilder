@@ -120,6 +120,11 @@ def updateDB(maxCount):
 
     con.close()
 
+def rowDist(arg):
+    row = arg[0]
+    src = arg[1]
+    return [PHash.CRDistance(src, row[0]), row[1]]
+
 def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
     src = PHash.CRHashImage(image)
 
@@ -130,19 +135,32 @@ def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
 
     rows = cur.fetchall()
 
+    con.close();
+
     minD = 10000000;
     minV = [];
     minUUID = None;
 
-    for hashes, uuid in rows:
-        d = PHash.CRDistance(src, hashes)
+    pool = Pool()
 
-        if(d < minD):
-            minD = d
-            minV = hashes
+    print('hi!')
+
+
+    distances = pool.map(rowDist, zip(rows, [src] * len(rows)))
+
+    for distance, uuid in distances:
+        if(distance < minD):
+            minD = distance
             minUUID = uuid
 
-    con.close();
+    #for hashes, uuid in rows:
+        #d = PHash.CRDistance(src, hashes)
+
+        #if(d < mind):
+            #mind = d
+            #minv = hashes
+            #minuuid = uuid
+
 
     #print(minD, minUUID, src)
 
