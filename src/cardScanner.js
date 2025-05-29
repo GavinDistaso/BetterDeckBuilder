@@ -109,7 +109,7 @@ async function detectCardPositions(){
     let hierarchy = new cv.Mat();
 
     // NOTE: RETR_EXTERNAL removes ALL child contours - may remove matches
-    cv.findContours(close, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+    cv.findContours(close, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
 
     let allContours = []
 
