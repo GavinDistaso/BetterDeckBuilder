@@ -4,18 +4,21 @@ const canvas = document.getElementById('scanVideoReader')
 
 const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
-window.onload = async function() {
+async function loadCamera(){
     window.cv = await window.cv;
-}
 
-navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
-    .then((stream) => {
+    navigator.mediaDevices.getUserMedia({ video: {facingMode: 'enviroment'}, audio: false }).then(stream=>{
+
         scannerPreview.srcObject = stream;
-        scannerPreview.play();
 
+        scannerPreview.play();
         window.requestAnimationFrame(loop);
     })
+}
+
+document.getElementById('tmpScanButton').addEventListener('click', ()=>{
+    loadCamera();
+})
 
 async function renderPreview(){
     if(!window.cv){ alert('AGHH!'); return; }
@@ -73,8 +76,8 @@ async function detectCardPositions(){
 
     //
 
-    let width = 1500;
-    //let width = 1920;
+    //let width = 1500;
+    let width = Math.min(src.cols, 1500);
     //let width = src.cols;
     let ratio = src.rows / src.cols;
 
@@ -306,6 +309,7 @@ async function detectCardPositions(){
         //console.log(cardContour)
 
         //
+
         let imageData = canvas.toDataURL("image/jpeg").slice(23);
 
         await fetch(canvas.toDataURL("image/jpeg"))
@@ -315,7 +319,7 @@ async function detectCardPositions(){
         let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', imageData);
 
         if(!success){
-            alert('An error has occured scanning a card: ' + msg)
+            console.error('An error has occured scanning a card: ' + msg)
             passThrough = true;
             return;
         }
@@ -345,6 +349,7 @@ async function detectCardPositions(){
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
         cv.polylines(resized, vertVectors, true, color, 3)
+        
         cv.imshow('scanVideoReader', resized);
     });
 
@@ -359,11 +364,18 @@ scanButton.addEventListener('click', async ()=>{
     await renderPreview();
     allowPreview = false;
     let dataBlobs = await detectCardPositions();
+
+    setTimeout(()=>{
+        allowPreview = true;
+    }, 5000)
 })
 
-async function loop(){
-    if(allowPreview)
-        await renderPreview();
-    //await detectCardPositions();
-    window.requestAnimationFrame(loop);
+function loop(){
+    if(!allowPreview){
+        window.requestAnimationFrame(loop);
+        return;
+    }
+    renderPreview().then(()=>{
+        window.requestAnimationFrame(loop);
+    })
 }

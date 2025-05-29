@@ -99,7 +99,7 @@ async function processRequest(req, res){
 
     res.setHeader('Content-Type', 'application/json')
 
-    if(['https://betterdeckbuilder.gavindistaso.com', 'https://bdbapi.gavindistaso.com', 'http://127.0.0.1:8080'].includes(req.headers.origin)){
+    if(['https://betterdeckbuilder.gavindistaso.com', 'https://bdbapi.gavindistaso.com', 'http://127.0.0.1:8080', 'https://127.0.0.1:8080'].includes(req.headers.origin)){
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
     }
     res.setHeader('Access-Control-Allow-Methods', '*');
