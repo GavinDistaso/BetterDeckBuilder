@@ -1,6 +1,7 @@
 const jwt = require('./jwt.js')
 const userDB = require('./usersDatabase.js')
 const collectionDB = require('./userCollections.js')
+const reverseSearch = require('./reverseSearch.js')
 
 const https = require('https');
 const fs = require('fs');
@@ -80,7 +81,6 @@ https.createServer(options, async (req, res) => {
 }).listen(port);
 
 let reverseCardSearchModule = await py.import('./tools/reverseCardSearch.py');
-let mtgPHashDBModule = await py.import('./tools/mtgPHashDB.py');
 
 async function processRequest(req, res){
     let url = new URL('https://thisApi.com' + req.url);
@@ -288,9 +288,19 @@ async function processRequest(req, res){
                 break;
             }
 
-            let [cardUUID, distance] = await py.call(reverseCardSearchModule, "reverseCardSearch", body)
+            let start = Date.now();
 
-            writeApiResponse(res, {cardUUID: cardUUID, distance: distance}, true, 200, "Results...");
+            let multiHashList = [...await py.call(reverseCardSearchModule, "imageListDataToHashes", body)]
+
+            let time1 = Date.now();
+
+            let results = await reverseSearch.reverseSearch(multiHashList);
+
+            let time2 = Date.now();
+
+            console.log(time1 - start, time2 - time1)
+
+            writeApiResponse(res, results, true, 200, "Results...");
         } break;
 
         case '/backend/updateimagehashdb' : {
@@ -301,7 +311,11 @@ async function processRequest(req, res){
                 break;
             }
 
+            reverseSearch.closeDB();
+
             execSync('wget https://betterdeckbuilder.gavindistaso.com/MtgCHashes.sqlite -O MtgCHashes.sqlite')
+
+            reverseSearch.openDB();
 
             writeApiResponse(res, {}, true, 200, "Done!");
         } break;

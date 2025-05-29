@@ -126,6 +126,9 @@ def rowDist(arg):
     src = arg[1]
     return [PHash.CRDistance(src, row[0]), row[1]]
 
+def getImageHashes(image):
+    return str(PHash.CRHashImage(image))
+
 def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
     srcRawHash = PHash.CRHashImage(image)
     src = imagehash.ImageMultiHash([PHash.hexToHash(s) for s in srcRawHash.split(',')])
@@ -163,7 +166,7 @@ def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
 
     end2 = time.time()
 
-    #print(f'{(end1 - start)}, {(end2 - end1)}')
+    print(f'{(end1 - start)}, {(end2 - end1)}')
 
     #for hashes, uuid in rows:
         #d = PHash.CRDistance(src, hashes)

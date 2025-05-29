@@ -4,11 +4,22 @@ import io
 
 from PIL import Image
 
-def reverseCardSearch(data):
-    b = base64.b64decode(data)
+def imageListDataToHashes(data):
+    l = data.split('&')
 
-    image = Image.open(io.BytesIO(b))
+    multiHashList = []
 
-    distance, cardUUID = mtgPHashDB.testDBAgainstImage(image, 'MtgCHashes.sqlite')
+    for d in l:
+        b = base64.b64decode(d)
 
-    return [cardUUID, distance]
+        image = Image.open(io.BytesIO(b))
+
+        srcHashes = mtgPHashDB.getImageHashes(image).split(',')
+
+        hashes = [str(int('0x' + s, 16)) for s in srcHashes]
+
+        multiHashList.append(hashes)
+
+    #distance, cardUUID = mtgPHashDB.testDBAgainstImage(image, 'MtgCHashes.sqlite')
+
+    return multiHashList

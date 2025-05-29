@@ -286,13 +286,10 @@ async function detectCardPositions(){
         0, 0,
     ]);
 
-    let dataURLS = []
+    let base64ImageData = []
+    let scanPositions = []
 
-    var passThrough = false;
-
-    allContours.forEach(async cardContour => {
-        if(passThrough){return;}
-
+    for(const cardContour of allContours){
         let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, cardContour);
 
         //console.log(srcTri.data32F)
@@ -312,11 +309,11 @@ async function detectCardPositions(){
 
         let imageData = canvas.toDataURL("image/jpeg").slice(23);
 
-        await fetch(canvas.toDataURL("image/jpeg"))
+        base64ImageData.push(imageData)
 
         //console.log(imageData)
 
-        let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', imageData);
+        /*let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', imageData);
 
         if(!success){
             alert('An error has occured scanning a card: ' + msg)
@@ -333,29 +330,65 @@ async function detectCardPositions(){
         let card = await getCardByUUID(cardUUID);
 
         console.log(card, payload.distance)
+        */
 
         let tmp = new cv.Mat();
 
         srcTri.convertTo(tmp, cv.CV_32SC2)
+
 
         let M = cv.moments(tmp);
 
         let cX = M.m10 / M.m00;
         let cY = M.m01 / M.m00;
 
-        cv.putText(resized, card.name, new cv.Point(cX, cY), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Scalar(255, 255, 0, 255), 2, cv.LINE_AA)
-        cv.putText(resized, "Q"+payload.distance, new cv.Point(cX, cY + 20), cv.FONT_HERSHEY_SIMPLEX, 0.5, new cv.Scalar(255, 255, 0, 255), 2, cv.LINE_AA)
+        scanPositions.push(new cv.Point(cX, cY));
+
+        /*
+        */
 
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
         cv.polylines(resized, vertVectors, true, color, 3)
         
         cv.imshow('scanVideoReader', resized);
-    });
+    }
+
+    //
+
+    let list = base64ImageData.join('&');
+
+    let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
+
+    if(!success){
+        alert('An error has occured scanning cards: ' + msg)
+        return [];
+    }
+
+    let cardScans = [];
+
+    for(let i = 0; i < payload.length; i++){
+        let entry = payload[i];
+        cardScans.push({
+            card: await getCardByUUID(entry.cardUUID),
+            distance: entry.distance,
+            scanPosition: scanPositions[i]
+        })
+    }
+
+    console.log(cardScans)
+
+    // draw text
+
+    for(const scan of cardScans){
+        cv.putText(resized, scan.card.name, scan.scanPosition, cv.FONT_HERSHEY_SIMPLEX, 1, new cv.Scalar(255, 144, 144, 255), 2, cv.LINE_AA)
+        cv.putText(resized, "Q"+scan.distance, new cv.Point(scan.scanPosition.x, scan.scanPosition.y + 20), cv.FONT_HERSHEY_SIMPLEX, 0.6, new cv.Scalar(0, 255, 255, 255), 2, cv.LINE_AA)
+    }
 
     cv.imshow('scanVideoReader', resized);
 
-    return dataURLS;
+    //
+    return cardScans;
 }
 
 let allowPreview = true;
@@ -363,7 +396,8 @@ let allowPreview = true;
 scanButton.addEventListener('click', async ()=>{
     await renderPreview();
     allowPreview = false;
-    let dataBlobs = await detectCardPositions();
+    await detectCardPositions();
+
 
     setTimeout(()=>{
         allowPreview = true;
