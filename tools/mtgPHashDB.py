@@ -2,6 +2,7 @@ from PIL import Image
 from io import BytesIO
 import requests
 import PHash
+import imagehash
 import sqlite3 as sql
 import time
 
@@ -126,7 +127,8 @@ def rowDist(arg):
     return [PHash.CRDistance(src, row[0]), row[1]]
 
 def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
-    src = PHash.CRHashImage(image)
+    srcRawHash = PHash.CRHashImage(image)
+    src = imagehash.ImageMultiHash([PHash.hexToHash(s) for s in srcRawHash.split(',')])
 
     con = sql.connect(db)
     cur = con.cursor()
@@ -141,17 +143,27 @@ def testDBAgainstImage(image, db='MtgCHashes.sqlite'):
     minV = [];
     minUUID = None;
 
-    pool = Pool()
+    pool = Pool(4)
 
-    print('hi!')
+    start = time.time()
 
+    distances = []
+
+    #for hashes, uuid in rows:
+        #dist = PHash.CRDistance(src, hashes)
+        #distances.append([dist, uuid])
 
     distances = pool.map(rowDist, zip(rows, [src] * len(rows)))
+    end1 = time.time()
 
     for distance, uuid in distances:
         if(distance < minD):
             minD = distance
             minUUID = uuid
+
+    end2 = time.time()
+
+    #print(f'{(end1 - start)}, {(end2 - end1)}')
 
     #for hashes, uuid in rows:
         #d = PHash.CRDistance(src, hashes)

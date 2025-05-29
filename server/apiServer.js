@@ -302,6 +302,8 @@ async function processRequest(req, res){
             }
 
             execSync('wget https://betterdeckbuilder.gavindistaso.com/MtgCHashes.sqlite -O MtgCHashes.sqlite')
+
+            writeApiResponse(res, {}, true, 200, "Done!");
         } break;
 
         default: {

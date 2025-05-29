@@ -319,7 +319,7 @@ async function detectCardPositions(){
         let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', imageData);
 
         if(!success){
-            console.error('An error has occured scanning a card: ' + msg)
+            alert('An error has occured scanning a card: ' + msg)
             passThrough = true;
             return;
         }

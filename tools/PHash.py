@@ -107,10 +107,33 @@ def CRHashImage(image):
 
     return str(hash)
 
-def CRDistance(a, b):
-    aHash = imagehash.hex_to_multihash(a)
-    bHash = imagehash.hex_to_multihash(b)
-    totalMatching, totalHamming = aHash.hash_diff(bHash)
+def hexToHash(hexString):
+    #hexString = hexString[::-1]
+    out = []
+    for char in hexString:
+        chrCode = ord(char)
+
+        value = 0
+
+        if(chrCode >= 65):
+            value = chrCode - 65
+        else:
+            value = chrCode - 48
+
+        out.append((value >> 3) & 1 == 1)
+        out.append((value >> 2) & 1 == 1)
+        out.append((value >> 1) & 1 == 1)
+        out.append((value >> 0) & 1 == 1)
+
+    out = np.array(out)
+
+    return imagehash.ImageHash(np.resize(out, (8, 8)))
+
+
+def CRDistance(aMultiHashObj, bHexes):
+    bHash = imagehash.ImageMultiHash([hexToHash(s) for s in bHexes.split(',')])
+
+    totalMatching, totalHamming = aMultiHashObj.hash_diff(bHash)
 
     if(totalMatching == 0):
         return 999999;

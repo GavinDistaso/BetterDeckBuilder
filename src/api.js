@@ -54,7 +54,7 @@ async function attemptGetUser(){
 
 async function makeApiRequest(endpoint, method = 'GET', body = null){
     if(!window.user && !(await attemptGetUser())){
-        return [false, {}, "User not logged in."];
+        return [false, "User not logged in.", {}];
     }
 
     let result = await (await fetch(`${API}/${endpoint}`, {
