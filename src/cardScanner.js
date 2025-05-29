@@ -76,15 +76,15 @@ async function detectCardPositions(){
 
     //
 
-    //let width = 1500;
-    let width = Math.min(src.cols, 1500);
+    let width = 1500;
+    //let width = Math.min(src.cols, 1500);
     //let width = src.cols;
     let ratio = src.rows / src.cols;
 
 
     let resized = new cv.Mat();
     let dsize = new cv.Size(width, ratio * width); // Sets new size to 300x300
-    cv.resize(src, resized, dsize, 0, 0, cv.INTER_AREA);
+    cv.resize(src, resized, dsize, 0, 0, cv.INTER_CUBIC);
 
     //
 
@@ -92,7 +92,7 @@ async function detectCardPositions(){
     cv.cvtColor(resized, gray, cv.COLOR_RGB2GRAY);
 
     let blur = new cv.Mat();
-    let ksize = new cv.Size(3, 3);
+    let ksize = new cv.Size(7, 7);
     //cv.bilateralFilter(gray, blur, 20, 10, 10, cv.BORDER_DEFAULT);
     cv.GaussianBlur(gray, blur , ksize, 0, 0, cv.BORDER_DEFAULT);
 
@@ -100,7 +100,7 @@ async function detectCardPositions(){
     cv.Canny(blur, canny, 50, 200, 3, false);
 
     let close = new cv.Mat();
-    let M = cv.Mat.ones(2, 2, cv.CV_8U);
+    let M = cv.Mat.ones(3, 3, cv.CV_8U);
     cv.morphologyEx(canny, close, cv.MORPH_DILATE, M);
 
     //
@@ -133,8 +133,7 @@ async function detectCardPositions(){
         let area = cv.contourArea(poly);
 
         let vertVectors = new cv.MatVector();
-        vertVectors.push_back(cardContour)
-//        cv.polylines(resized, vertVectors, true, color, 3)
+        vertVectors.push_back(poly)
         //
         if(area > 500 && poly.rows == 4){
 
@@ -180,17 +179,28 @@ async function detectCardPositions(){
 
             let longestEdges = edges.sort((a, b)=>{return Math.sign(b.sqrLength - a.sqrLength);}).slice(0, 4);
 
+            let topLeft =[...longestEdges.sort((a, b)=>{
+                let dirrection = {x: -1, y: -1};
+                let dotProductA = a.start.x * dirrection.x + a.start.y * dirrection.y;
+                let dotProductB = b.start.x * dirrection.x + b.start.y * dirrection.y;
 
+                return Math.sign(dotProductB - dotProductA);
+            })];
 
-            let ySort = [...longestEdges.sort((a, b)=>{return Math.sign(b.midPoint.y - a.midPoint.y);})];
-            let xSort = [...longestEdges.sort((a, b)=>{return Math.sign(b.midPoint.x - a.midPoint.x);})];
+            let topRight =[...longestEdges.sort((a, b)=>{
+                let dirrection = {x: 1, y: -1};
+                let dotProductA = a.start.x * dirrection.x + a.start.y * dirrection.y;
+                let dotProductB = b.start.x * dirrection.x + b.start.y * dirrection.y;
+
+                return Math.sign(dotProductB - dotProductA);
+            })];
 
             // wind edges in the order: Highest, Right Most, Lowest, Left Most
             let edgeWinding = [
-                ySort[3],
-                xSort[0],
-                ySort[0],
-                xSort[3],
+                topLeft[0],
+                topRight[0],
+                topLeft[3],
+                topRight[3]
             ];
 
             //
@@ -198,13 +208,17 @@ async function detectCardPositions(){
             let ps1 = parallellSimularity(edgeWinding[0], edgeWinding[2])
             let ps2 = parallellSimularity(edgeWinding[1], edgeWinding[3])
 
-            if(ps1 > 0.3 || ps2 > 0.3){
+
+            if(ps1 > 0.15 || ps2 > 0.15){
                 continue;
             }
+            //cv.polylines(resized, vertVectors, true, color, 3)
 
             //
+            console.log(edgeWinding)
 
             let cardVerts = [];
+
 
             for(let j = 0; j < 4; j++){
                 let edge1 = edgeWinding[(j + 0) % 4];
@@ -220,14 +234,13 @@ async function detectCardPositions(){
 
                 //c
                 color = new cv.Scalar(255, 0, 255, 255);
-                cv.circle(resized, new cv.Point(x, y), 5, color, -1);
+                //cv.circle(resized, new cv.Point(x, y), 5, color, -1);
 
                 cardVerts.push({x: x, y: y})
 
-                //cv.line(resized, new cv.Point(edge1.start.x, edge1.start.y), new cv.Point(edge1.stop.x, edge1.stop.y), color, 2);
                 //cv.line(resized, new cv.Point(x1, y1), new cv.Point(x2, y2), color, 2);
 
-                color = new cv.Scalar(255, 255, 255, 255);
+                color = new cv.Scalar(255, 255, 0, 255);
                 //cv.line(resized, new cv.Point(x3, y3), new cv.Point(x4, y4), color, 2);
             }
 
@@ -240,14 +253,12 @@ async function detectCardPositions(){
             ]);
 
             color = new cv.Scalar(255, 144, 144, 255);
-            cv.line(resized, new cv.Point(cardVerts[0].x, cardVerts[0].y), new cv.Point(cardVerts[1].x, cardVerts[1].y), color, 2);
+            /*cv.line(resized, new cv.Point(cardVerts[0].x, cardVerts[0].y), new cv.Point(cardVerts[1].x, cardVerts[1].y), color, 2);
             cv.line(resized, new cv.Point(cardVerts[1].x, cardVerts[1].y), new cv.Point(cardVerts[2].x, cardVerts[2].y), color, 2);
             cv.line(resized, new cv.Point(cardVerts[2].x, cardVerts[2].y), new cv.Point(cardVerts[3].x, cardVerts[3].y), color, 2);
-            cv.line(resized, new cv.Point(cardVerts[3].x, cardVerts[3].y), new cv.Point(cardVerts[0].x, cardVerts[0].y), color, 2);
+            cv.line(resized, new cv.Point(cardVerts[3].x, cardVerts[3].y), new cv.Point(cardVerts[0].x, cardVerts[0].y), color, 2);*/
 
             //console.log(cardVerts);
-
-            //cv.drawContours(resized, contours, i, color, 2, cv.LINE_8, hierarchy, 100);
             //
             /*
 
@@ -350,13 +361,13 @@ async function detectCardPositions(){
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
         cv.polylines(resized, vertVectors, true, color, 3)
-        
-        cv.imshow('scanVideoReader', resized);
     }
 
     //
 
     let list = base64ImageData.join('&');
+
+    cv.imshow('scanVideoReader', close);
 
     let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
 
