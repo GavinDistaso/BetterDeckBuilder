@@ -63,7 +63,7 @@ def updateDB(maxCount):
         if(side == 'b' and (card.layout == 'transform' or card.layout == 'convert' or card.layout == 'modal_dfc')):
             side = 'back'
 
-        imageURL = imageURL.replace('normal', 'small').replace('[side]', side)
+        imageURL = imageURL.replace('normal', 'normal').replace('[side]', side)
 
         r = requests.get(imageURL)
 

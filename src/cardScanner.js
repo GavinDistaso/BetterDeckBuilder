@@ -64,7 +64,7 @@ function modulo(a, n) {
 function parallellSimularity(l1, l2){
     let [x1, y1, x2, y2, x3, y3, x4, y4] = [l1.start.x, l1.start.y, l1.stop.x, l1.stop.y, l2.start.x, l2.start.y, l2.stop.x, l2.stop.y]
 
-    let cross = ((x2 - x1)*(y4 - y3) - (x4 - x3) * (y2 - y1)) / Math.sqrt((Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) * (Math.pow(x4 - x3, 2) + Math.pow(y4 - y3, 2)))
+    let cross = ((x2 - x1)*(y4 - y3) - (x4 - x3) * (y2 - y1)) / (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) * Math.sqrt(Math.pow(x4 - x3, 2) + Math.pow(y4 - y3, 2)))
 
     return Math.abs(cross);
 }
@@ -76,40 +76,42 @@ async function detectCardPositions(){
 
     //
 
-    let width = 1500;
+    let width = 1000;
+    let scale = width / src.cols;
     //let width = Math.min(src.cols, 1500);
     //let width = src.cols;
     let ratio = src.rows / src.cols;
-
+    //
+    //let ratio = 1.0 / 1.414;
 
     let resized = new cv.Mat();
     let dsize = new cv.Size(width, ratio * width); // Sets new size to 300x300
     cv.resize(src, resized, dsize, 0, 0, cv.INTER_CUBIC);
 
-    //
-
     let gray = new cv.Mat();
     cv.cvtColor(resized, gray, cv.COLOR_RGB2GRAY);
 
+    //
+
     let blur = new cv.Mat();
-    let ksize = new cv.Size(7, 7);
+    let ksize = new cv.Size(5, 5);
     //cv.bilateralFilter(gray, blur, 20, 10, 10, cv.BORDER_DEFAULT);
-    cv.GaussianBlur(gray, blur , ksize, 0, 0, cv.BORDER_DEFAULT);
+    cv.GaussianBlur(gray, blur, ksize, 0, 0, cv.BORDER_DEFAULT);
 
     let canny = new cv.Mat();
     cv.Canny(blur, canny, 50, 200, 3, false);
 
     let close = new cv.Mat();
-    let M = cv.Mat.ones(3, 3, cv.CV_8U);
-    cv.morphologyEx(canny, close, cv.MORPH_DILATE, M);
+    let M = cv.Mat.ones(1, 1, cv.CV_8U);
+    cv.morphologyEx(canny, close, cv.MORPH_CLOSE, M);
 
     //
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
 
-    // NOTE: RETR_EXTERNAL removes ALL child contours - may remove matches
-    cv.findContours(close, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+    // NOTE: RETR_EXTERNAL removes ALL child contours - may remove matches (RETR_LIST)
+    cv.findContours(close, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
     let allContours = []
 
@@ -209,7 +211,7 @@ async function detectCardPositions(){
             let ps2 = parallellSimularity(edgeWinding[1], edgeWinding[3])
 
 
-            if(ps1 > 0.15 || ps2 > 0.15){
+            if(ps1 > 0.2 || ps2 > 0.2){
                 continue;
             }
             //cv.polylines(resized, vertVectors, true, color, 3)
@@ -244,12 +246,11 @@ async function detectCardPositions(){
                 //cv.line(resized, new cv.Point(x3, y3), new cv.Point(x4, y4), color, 2);
             }
 
-
             allContours.push([
-                cardVerts[0].x, cardVerts[0].y,
-                cardVerts[1].x, cardVerts[1].y,
-                cardVerts[2].x, cardVerts[2].y,
-                cardVerts[3].x, cardVerts[3].y
+                cardVerts[0].x / scale, cardVerts[0].y / scale,
+                cardVerts[1].x / scale, cardVerts[1].y / scale,
+                cardVerts[2].x / scale, cardVerts[2].y / scale,
+                cardVerts[3].x / scale, cardVerts[3].y / scale
             ]);
 
             color = new cv.Scalar(255, 144, 144, 255);
@@ -288,7 +289,7 @@ async function detectCardPositions(){
     let color = new cv.Scalar(255,0,0, 255);
 
 
-    let morphed = new cv.Mat(500, 500, resized.type);
+    let morphed = new cv.Mat(680, 488, resized.type);
 
     let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
         morphed.cols, 0,
@@ -307,7 +308,7 @@ async function detectCardPositions(){
 
         let transformMatrix = cv.getPerspectiveTransform(srcTri, dstPoints);
 
-        cv.warpPerspective(gray, morphed, transformMatrix, morphed.size(), cv.INTER_LINEAR, cv.BORDER_CONSTANT);
+        cv.warpPerspective(src, morphed, transformMatrix, morphed.size(), cv.INTER_LINEAR, cv.BORDER_CONSTANT);
         //cv.resize(morphed, morphed, new cv.Size(500, 500), 0, 0, cv.INTER_CUBIC);
 
         //
@@ -317,6 +318,8 @@ async function detectCardPositions(){
         //console.log(cardContour)
 
         //
+
+        await fetch(canvas.toDataURL("image/jpeg"))
 
         let imageData = canvas.toDataURL("image/jpeg").slice(23);
 
@@ -360,14 +363,14 @@ async function detectCardPositions(){
 
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
-        cv.polylines(resized, vertVectors, true, color, 3)
+        cv.polylines(src, vertVectors, true, color, 3)
     }
 
     //
 
     let list = base64ImageData.join('&');
 
-    cv.imshow('scanVideoReader', close);
+    cv.imshow('scanVideoReader', src);
 
     let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
 
@@ -392,11 +395,11 @@ async function detectCardPositions(){
     // draw text
 
     for(const scan of cardScans){
-        cv.putText(resized, scan.card.name, scan.scanPosition, cv.FONT_HERSHEY_SIMPLEX, 1, new cv.Scalar(255, 144, 144, 255), 2, cv.LINE_AA)
-        cv.putText(resized, "Q"+scan.distance, new cv.Point(scan.scanPosition.x, scan.scanPosition.y + 20), cv.FONT_HERSHEY_SIMPLEX, 0.6, new cv.Scalar(0, 255, 255, 255), 2, cv.LINE_AA)
+        cv.putText(src, scan.card.name, scan.scanPosition, cv.FONT_HERSHEY_SIMPLEX, 1, new cv.Scalar(255, 144, 144, 255), 2, cv.LINE_AA)
+        cv.putText(src, "Q"+scan.distance, new cv.Point(scan.scanPosition.x, scan.scanPosition.y + 20), cv.FONT_HERSHEY_SIMPLEX, 0.6, new cv.Scalar(0, 255, 255, 255), 2, cv.LINE_AA)
     }
 
-    cv.imshow('scanVideoReader', resized);
+    cv.imshow('scanVideoReader', src);
 
     //
     return cardScans;
