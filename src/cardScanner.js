@@ -29,6 +29,8 @@ async function loadCamera(){
         config: { model_type: 'vision_model' }
     });
     console.log("END!")
+
+    alert("Ready!")
 }
 
 document.getElementById('tmpScanButton').addEventListener('click', ()=>{

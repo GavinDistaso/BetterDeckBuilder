@@ -83,7 +83,7 @@ async function searchDB(
 
         ORDER BY ${orderBy} COLLATE NOCASE 
             ${orderAscending ? 'ASC' : 'DESC'}
-            NULLS LASThttps://unpkg.com/hnswlib-wasm@0.8.2/dist/hnswlib.mjs
+            NULLS LAST
 
         LIMIT ${pageIndex * pageSize}, ${pageSize}
         `
