@@ -24,7 +24,7 @@ const request = https.get("https://betterdeckbuilder.gavindistaso.com/AllPrintin
     response.pipe(file)
 
     response.on('end', ()=>{
-        updateEmbeddingsDB();
+        updateEmbeddingsDB(20000);
     })
 });
 //

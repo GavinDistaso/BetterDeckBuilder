@@ -33,7 +33,7 @@ jobs:
           USR: ${{ secrets.USR }}
           PASS: ${{ secrets.PASS }}
         run: |
-          sudo apt install node npm
+          sudo apt install nodejs npm
           npm install
           node ./tools/mtgEmbeddingsDB.js
 
