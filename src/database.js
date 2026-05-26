@@ -8,38 +8,39 @@ const databasePromise =
         {cache: 'no-cache'}
     );
 
-const pHashDatabasePromise = 
+const embedDatabasePromise = 
     fetch(
-        'https://betterdeckbuilder.gavindistaso.com/MtgPHashes.sqlite ',
+        'https://betterdeckbuilder.gavindistaso.com/mtgImgEmbed.sqlite ',
         {cache: 'no-cache'}
     );
 
 async function run(){
-    const [SQL, buf, pHashBuf] = await Promise.all([sqlPromise, databasePromise, pHashDatabasePromise]);
+    const [SQL, buf, pHashBuf] = await Promise.all([sqlPromise, databasePromise, embedDatabasePromise]);
 
     let data = await buf.arrayBuffer();
 
     const db = new SQL.Database(new Uint8Array(data));
-
+    //
     //
 
     let pHashData = await pHashBuf.arrayBuffer();
 
-    const pHashDB = new SQL.Database(new Uint8Array(pHashData))
+    const embedDB = new SQL.Database(new Uint8Array(pHashData))
 
     //
 
     document.getElementById('loading').style.display = 'none';
 
-    return [db, pHashDB];
+    return [db, embedDB];
 }
 
 
 let db = null;
-let pHashDB = null;
+let embedDB = null;
 
 (async() => {
-    [db, pHashDB] = await run();
+    [db, embedDB] = await run();
+    await populateEmbeddingList();
 })();
 
 
@@ -82,7 +83,7 @@ async function searchDB(
 
         ORDER BY ${orderBy} COLLATE NOCASE 
             ${orderAscending ? 'ASC' : 'DESC'}
-            NULLS LAST
+            NULLS LASThttps://unpkg.com/hnswlib-wasm@0.8.2/dist/hnswlib.mjs
 
         LIMIT ${pageIndex * pageSize}, ${pageSize}
         `
@@ -138,37 +139,71 @@ async function getCardByUUID(uuid){
     return await initCard(db, results[0].values[0], results[0].columns);
 }
 
-function hammingDistance(x, y){
-    v = BigInt(x) ^ BigInt(y)
+//
 
-    distance = BigInt(0)
-
-    for(let i = 0; i < 64; i++){
-        distance += v & 1n
-        v >>= 1n;
-    }
-
-    return distance;
+function L2Normalize(data) {
+    const norm = Math.sqrt(data.reduce((sum, val) => sum + val * val, 0));
+    if (norm == 0) return data;
+    return data.map(val => val / norm);
 }
 
-async function findLowestHammingDistance(pHashHexInput){
-    data = pHashDB.exec('SELECT pHash, uuid FROM pHashes')[0].values;
+let embedColNames = []
 
-    let pHash = parseInt(pHashHexInput, 16)
+for(let i = 0; i < 512; i++){
+    embedColNames.push(`d_${i}`)
+}
 
-    let minDistance = 64;
-    let minUUID = 0;
+let embeddingList = [];
+let uuidList = [];
 
-    data.forEach(([pHashHex, uuid]) => {
-        let testPHash = parseInt(pHashHex, 16)
+async function populateEmbeddingList(){
+    let results = await embedDB.exec(
+        `
+        SELECT *
+        FROM embeddings
+        `
+    )
 
-        let distance = hammingDistance(pHash, testPHash);
+    let i = 0;
+    for (const [uuid, ...embedding] of results[0].values) {
+        embeddingList[i] = new Float32Array(embedding);
+        uuidList[i] = uuid
+        i++;
+    }
+}
 
-        if (distance < minDistance && testPHash != 0){
-            minDistance = distance;
-            minUUID = uuid;
+function dot(a, b){
+    let d = 0;
+    for(let i = 0; i < 512; i++){
+        d+= a[i] * b[i]
+    }
+    return d;
+}
+
+async function findClosestEmbeddding(embeddingVector){
+    let embedding = new Float32Array(L2Normalize(embeddingVector));
+
+    let minimalIndex = 0;
+    let maxDot = -2;
+
+    for(let i = 0; i < embeddingList.length; i++){
+        let d = dot(embedding, embeddingList[i])
+
+        if(d > maxDot){
+            maxDot = d;
+            minimalIndex = i;
         }
-    }); 
+    }
 
-    return [await getCardByUUID(minUUID), minDistance]
+    return [{card: await getCardByUUID(uuidList[minimalIndex]), dotProduct: maxDot}];
+    /*
+
+    let cardResults = [];
+
+    for(let i = 0; i < results[0].values.length; i++){
+        cardResults.push({card: await getCardByUUID(results[0].values[i][0]), dotProduct: results[0].values[i][1]})
+    }
+
+    return cardResults
+    */
 }

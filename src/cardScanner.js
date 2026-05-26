@@ -232,7 +232,7 @@ async function detectCardPositions(){
             //cv.polylines(resized, vertVectors, true, color, 3)
 
             //
-            console.log(edgeWinding)
+            // console.log(edgeWinding)
 
             let cardVerts = [];
 
@@ -322,8 +322,7 @@ async function detectCardPositions(){
 
         let transformMatrix = cv.getPerspectiveTransform(srcTri, dstPoints);
 
-        cv.warpPerspective(src, morphed, transformMatrix, morphed.size(), cv.INTER_LINEAR, cv.BORDER_CONSTANT);
-        //cv.resize(morphed, morphed, new cv.Size(500, 500), 0, 0, cv.INTER_CUBIC);
+        cv.warpPerspective(src, morphed, transformMatrix, morphed.size(), cv.INTER_CUBIC, cv.BORDER_CONSTANT);
 
         //
 
@@ -376,44 +375,38 @@ async function detectCardPositions(){
 
         let vertVectors = new cv.MatVector();
         vertVectors.push_back(tmp)
-        cv.polylines(src, vertVectors, true, color, 3)
+        // cv.polylines(src, vertVectors, true, color, 3)
     }
 
     //
 
     // let list = hfImageData.join('&');
 
-    cv.imshow('scanVideoReader', src);
+    // cv.imshow('scanVideoReader', src);
 
-    let embeddings = [];
+    let resultsRequests = [];
 
-    hfImageData.forEach(async (image) => {
-        let inputs = await processor(image)
+    for(let i = 0; i < hfImageData.length; i++){
+        let inputs = await processor(hfImageData[i])
         let out = await model({...inputs});
-        embeddings.push(Array.from(out.image_embeds.data));
-    })
+        let embedding = Array.from(out.image_embeds.data);
 
-    console.log(embeddings)
-
-    return [];
-
-    // let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
-
-    if(!success){
-        alert('An error has occured scanning cards: ' + msg)
-        return [];
+        resultsRequests.push(findClosestEmbeddding(embedding));
     }
+
+    let results = await Promise.all(resultsRequests)
 
     let cardScans = [];
 
-    for(let i = 0; i < payload.length; i++){
-        let entry = payload[i];
+    for(let i = 0; i < results.length; i++){
+        let entry = results[i][0];
         cardScans.push({
-            card: await getCardByUUID(entry.cardUUID),
-            distance: entry.distance,
+            card: entry.card,
+            distance: entry.dotProduct,
             scanPosition: scanPositions[i]
         })
     }
+
 
     console.log(cardScans)
 
