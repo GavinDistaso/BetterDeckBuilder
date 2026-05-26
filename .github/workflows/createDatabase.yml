@@ -25,7 +25,7 @@ jobs:
       - name: Download Previous PHash
         continue-on-error: true
         run: |
-          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgCHashes.sqlite 
+          wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/mtgImgEmbed.sqlite 
 
       - name: Create/ Update Embedings
         continue-on-error: true
@@ -33,7 +33,7 @@ jobs:
           USR: ${{ secrets.USR }}
           PASS: ${{ secrets.PASS }}
         run: |
-          apt install node npm
+          sudo apt install node npm
           npm install
           node ./tools/mtgEmbeddingsDB.js
 
