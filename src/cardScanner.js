@@ -4,8 +4,13 @@ const canvas = document.getElementById('scanVideoReader')
 
 const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
+import { CLIPVisionModelWithProjection, pipeline, AutoProcessor, RawImage } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.1';
+
+let processor = null;
+let model = null;
+
 async function loadCamera(){
-    window.cv = await window.cv;
+    window.cv = (cv instanceof Promise) ? await cv : cv;
 
     navigator.mediaDevices.getUserMedia({ video: {facingMode: 'enviroment'}, audio: false }).then(stream=>{
 
@@ -14,6 +19,16 @@ async function loadCamera(){
         scannerPreview.play();
         window.requestAnimationFrame(loop);
     })
+
+    const model_id = 'Xenova/clip-vit-base-patch32';
+
+    processor = await AutoProcessor.from_pretrained(model_id);
+
+    model = await CLIPVisionModelWithProjection.from_pretrained(model_id, {
+        quantized: true,
+        config: { model_type: 'vision_model' }
+    });
+    console.log("END!")
 }
 
 document.getElementById('tmpScanButton').addEventListener('click', ()=>{
@@ -273,7 +288,7 @@ async function detectCardPositions(){
 
             let rectRatio = sideLengths[0] / sideLengths[3];
 
-            let rect = cv.minAreaRect(contour)
+            rect = cv.minAreaRect(contour)
             let box = cv.boxPoints(rect)
 
             //
@@ -288,8 +303,7 @@ async function detectCardPositions(){
 
     let color = new cv.Scalar(255,0,0, 255);
 
-
-    let morphed = new cv.Mat(680, 488, resized.type);
+    let morphed = new cv.Mat(680, 488, resized.type());
 
     let dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
         morphed.cols, 0,
@@ -298,7 +312,7 @@ async function detectCardPositions(){
         0, 0,
     ]);
 
-    let base64ImageData = []
+    let hfImageData = []
     let scanPositions = []
 
     for(const cardContour of allContours){
@@ -319,11 +333,11 @@ async function detectCardPositions(){
 
         //
 
-        await fetch(canvas.toDataURL("image/jpeg"))
+        let imageData = await RawImage.fromURL(canvas.toDataURL("image/jpeg"));
 
-        let imageData = canvas.toDataURL("image/jpeg").slice(23);
+        // let imageData = canvas.toDataURL("image/jpeg").slice(23);
 
-        base64ImageData.push(imageData)
+        hfImageData.push(imageData);
 
         //console.log(imageData)
 
@@ -357,7 +371,6 @@ async function detectCardPositions(){
         let cY = M.m01 / M.m00;
 
         scanPositions.push(new cv.Point(cX, cY));
-
         /*
         */
 
@@ -368,11 +381,23 @@ async function detectCardPositions(){
 
     //
 
-    let list = base64ImageData.join('&');
+    // let list = hfImageData.join('&');
 
     cv.imshow('scanVideoReader', src);
 
-    let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
+    let embeddings = [];
+
+    hfImageData.forEach(async (image) => {
+        let inputs = await processor(image)
+        let out = await model({...inputs});
+        embeddings.push(Array.from(out.image_embeds.data));
+    })
+
+    console.log(embeddings)
+
+    return [];
+
+    // let [success, msg, payload] = await makeApiRequest('/cardreversesearch', 'POST', list);
 
     if(!success){
         alert('An error has occured scanning cards: ' + msg)

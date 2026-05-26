@@ -27,21 +27,19 @@ jobs:
         run: |
           wget https://github.com/GavinDistaso/BetterDeckBuilder/releases/latest/download/MtgCHashes.sqlite 
 
-      - name: Create/ Update PHash DB
+      - name: Create/ Update Embedings
         continue-on-error: true
         env:
           USR: ${{ secrets.USR }}
           PASS: ${{ secrets.PASS }}
         run: |
-          python3 -m pip install pillow
-          python3 -m pip install numpy
-          python3 -m pip install imagehash
-          python3 -m pip install opencv-python
-          python3 tools/mtgPHashDB.py
+          apt install node npm
+          npm install
+          node ./tools/mtgEmbeddingsDB.js
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-            artifacts: "AllPrintings.sqlite,MtgCHashes.sqlite"
+            artifacts: "AllPrintings.sqlite,mtgImgEmbed.sqlite"
             body: Database created at ${{ env.NOW }}.
             tag: ${{env.NOW}}
